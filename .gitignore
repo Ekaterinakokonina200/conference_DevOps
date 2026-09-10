@@ -1,0 +1,43 @@
+# Environment variables
+.env
+
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+pycache/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# IDE settings
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+
+*.egg-info/
