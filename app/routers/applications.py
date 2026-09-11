@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.application import Application
 from app.models.participant import Participant
+from app.models.payment import Payment
 from app.schemas.application import (
     ApplicationCreate,
     ApplicationResponse,
@@ -118,6 +119,22 @@ def update_application(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Application not found",
         )
+
+    if application_data.status == "confirmed":
+        payment = (
+            db.query(Payment)
+            .filter(
+                Payment.participant_id == application.participant_id,
+                Payment.status == "paid",
+            )
+            .first()
+        )
+
+        if not payment:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Registration fee must be paid before confirmation",
+            )
 
     application.status = application_data.status
 
