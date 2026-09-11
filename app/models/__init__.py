@@ -1,3 +1,7 @@
+from app.models.application import Application
 from app.models.participant import Participant
 
-all = ["Participant"]
+__all__ = [
+    "Application",
+    "Participant",
+]
