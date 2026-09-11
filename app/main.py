@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routers import participants
+from app.routers import applications, participants
 
 app = FastAPI(
     title="Conference Management System",
@@ -18,4 +18,10 @@ app.include_router(
     participants.router,
     prefix="/participants",
     tags=["Participants"],
+)
+
+app.include_router(
+    applications.router,
+    prefix="/applications",
+    tags=["Applications"],
 )
