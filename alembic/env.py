@@ -1,15 +1,16 @@
 import os
-from dotenv import load_dotenv
-
-from app.database import Base
-from app.models import Participant
-
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
+
+from app.database import Base
+from app.models import (
+    Application as Application,
+    Invitation as Invitation,
+    Participant as Participant,
+)
 
 load_dotenv()
 
