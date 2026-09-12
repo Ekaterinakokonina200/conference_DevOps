@@ -6,10 +6,18 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.database import Base
-from app.models import Application, Invitation, Participant, Payment, Thesis
+from app.models import (
+    Application,
+    HotelRequest,
+    Invitation,
+    Participant,
+    Payment,
+    Thesis,
+)
 
 loaded_models = (
     Application,
+    HotelRequest,
     Invitation,
     Participant,
     Payment,
