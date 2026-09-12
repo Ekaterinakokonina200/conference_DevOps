@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -108,7 +108,7 @@ def update_invitation(
     invitation.status = invitation_data.status
 
     if invitation_data.status == "sent":
-        invitation.sent_at = datetime.now()
+        invitation.sent_at = datetime.now(UTC)
 
     db.commit()
     db.refresh(invitation)

@@ -5,6 +5,7 @@ from app.routers import (
     invitations,
     participants,
     payments,
+    theses,
 )
 
 app = FastAPI(
@@ -41,4 +42,10 @@ app.include_router(
     payments.router,
     prefix="/payments",
     tags=["Payments"],
+)
+
+app.include_router(
+    theses.router,
+    prefix="/theses",
+    tags=["Theses"],
 )

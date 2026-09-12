@@ -6,13 +6,14 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.database import Base
-from app.models import Application, Invitation, Participant, Payment
+from app.models import Application, Invitation, Participant, Payment, Thesis
 
 loaded_models = (
     Application,
     Invitation,
     Participant,
     Payment,
+    Thesis,
 )
 
 load_dotenv()

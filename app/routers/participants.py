@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -12,6 +14,8 @@ from app.schemas.participant import (
 
 router = APIRouter()
 
+DbSession = Annotated[Session, Depends(get_db)]
+
 
 @router.post(
     "/",
@@ -20,7 +24,7 @@ router = APIRouter()
 )
 def create_participant(
     participant_data: ParticipantCreate,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     existing_participant = (
         db.query(Participant)
@@ -63,7 +67,7 @@ def create_participant(
     response_model=list[ParticipantResponse],
 )
 def get_participants(
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     return db.query(Participant).all()
 
@@ -74,7 +78,7 @@ def get_participants(
 )
 def get_participant(
     participant_id: int,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     participant = (
         db.query(Participant)
@@ -98,7 +102,7 @@ def get_participant(
 def update_participant(
     participant_id: int,
     participant_data: ParticipantUpdate,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     participant = (
         db.query(Participant)
@@ -156,7 +160,7 @@ def update_participant(
 )
 def delete_participant(
     participant_id: int,
-    db: Session = Depends(get_db),
+    db: DbSession,
 ):
     participant = (
         db.query(Participant)
@@ -173,4 +177,4 @@ def delete_participant(
     db.delete(participant)
     db.commit()
 
-    return None
+  
