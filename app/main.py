@@ -6,6 +6,7 @@ from app.routers import (
     invitations,
     participants,
     payments,
+    reports,
     theses,
 )
 
@@ -55,4 +56,10 @@ app.include_router(
     hotel_requests.router,
     prefix="/hotel-requests",
     tags=["Hotel Requests"],
+)
+
+app.include_router(
+    reports.router,
+    prefix="/reports",
+    tags=["Reports"],
 )
