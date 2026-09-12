@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.routers import (
     applications,
+    hotel_requests,
     invitations,
     participants,
     payments,
@@ -48,4 +49,10 @@ app.include_router(
     theses.router,
     prefix="/theses",
     tags=["Theses"],
+)
+
+app.include_router(
+    hotel_requests.router,
+    prefix="/hotel-requests",
+    tags=["Hotel Requests"],
 )
