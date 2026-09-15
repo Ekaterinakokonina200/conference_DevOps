@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.routers import (
     applications,
@@ -63,3 +65,13 @@ app.include_router(
     prefix="/reports",
     tags=["Reports"],
 )
+
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static",
+)
+
+@app.get("/", include_in_schema=False)
+def web_interface():
+    return FileResponse("app/static/index.html")

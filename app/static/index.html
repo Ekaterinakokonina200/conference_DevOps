@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Conference Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
+        body {
+            margin: 0;
+            min-width: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 32px 16px 48px;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #5f6673;
+            line-height: 1.5;
+        }
+
+        .section {
+            width: 100%;
+            min-width: 0;
+            margin-bottom: 24px;
+            padding: 24px;
+            overflow: hidden;
+
+            background: #ffffff;
+            border: 1px solid #dfe3eb;
+            border-radius: 16px;
+
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .section h2 {
+            margin: 0 0 18px;
+            font-size: 24px;
+        }
+
+        .section-description {
+            margin: -8px 0 18px;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .grid-form {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+
+            gap: 12px;
+            align-items: center;
+        }
+
+        .grid-form.two-columns {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-form.three-columns {
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+        }
+
+        input,
+        select,
+        button,
+        textarea {
+            width: 100%;
+            min-width: 0;
+
+            padding: 12px 14px;
+
+            border: 1px solid #cfd6e4;
+            border-radius: 10px;
+
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+
+            border-color: #4f7cff;
+
+            box-shadow:
+                0 0 0 3px rgba(79, 124, 255, 0.12);
+        }
+
+        button {
+            cursor: pointer;
+
+            border: none;
+
+            background: #2f6fed;
+            color: #ffffff;
+
+            font-weight: 600;
+
+            transition:
+                background 0.2s ease,
+                transform 0.1s ease;
+        }
+
+        button:hover {
+            background: #255dd0;
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .secondary-button {
+            width: auto;
+            min-width: 160px;
+
+            background: #eef2f8;
+            color: #1f2937;
+
+            border: 1px solid #d5dbe7;
+        }
+
+        .secondary-button:hover {
+            background: #e5ebf4;
+        }
+
+        .message {
+            display: none;
+
+            margin-top: 16px;
+            padding: 13px 15px;
+
+            border-radius: 10px;
+
+            font-size: 14px;
+            line-height: 1.5;
+
+            overflow-wrap: anywhere;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #eaf8ee;
+            color: #1f6b38;
+            border: 1px solid #b8e2c2;
+        }
+
+        .message.error {
+            background: #fdeeee;
+            color: #9f2432;
+            border: 1px solid #f3c0c7;
+        }
+
+        .message.info {
+            background: #eef4ff;
+            color: #244b8f;
+            border: 1px solid #c7d8ff;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 100%;
+
+            margin-top: 18px;
+
+            overflow-x: auto;
+            overflow-y: hidden;
+
+            border: 1px solid #e3e7ef;
+            border-radius: 12px;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            min-width: 720px;
+
+            border-collapse: collapse;
+
+            background: #ffffff;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+
+            border-bottom: 1px solid #e8edf5;
+
+            text-align: left;
+            vertical-align: top;
+
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            background: #f7f9fc;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fafbfe;
+        }
+
+        .empty-table-cell {
+            color: #6b7280;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .status-badge {
+            display: inline-block;
+
+            padding: 5px 10px;
+
+            border-radius: 999px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff4d6;
+            color: #8a6100;
+        }
+
+        .status-confirmed,
+        .status-paid,
+        .status-approved,
+        .status-sent,
+        .status-accepted {
+            background: #e8f8ee;
+            color: #1e7b45;
+        }
+
+        .status-rejected,
+        .status-cancelled,
+        .status-declined {
+            background: #fdeaea;
+            color: #a12b36;
+        }
+
+        .status-created,
+        .status-submitted {
+            background: #eef4ff;
+            color: #2a59b2;
+        }
+
+        .report-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .report-actions button {
+            width: auto;
+            min-width: 180px;
+        }
+
+        .report-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 14px;
+
+            margin-top: 18px;
+        }
+
+        .report-card {
+            min-width: 0;
+
+            padding: 18px;
+
+            background: #f8fbff;
+
+            border: 1px solid #dbe7ff;
+            border-radius: 14px;
+        }
+
+        .report-card .ru {
+            margin-bottom: 4px;
+
+            color: #1f2937;
+
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .report-card .en {
+            margin-bottom: 14px;
+
+            color: #6b7280;
+
+            font-size: 13px;
+        }
+
+        .report-card .value {
+            color: #2f6fed;
+
+            font-size: 34px;
+            font-weight: 800;
+        }
+
+        .report-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .empty-block {
+            margin-top: 18px;
+
+            padding: 18px;
+
+            background: #f8f9fb;
+
+            border: 1px dashed #d8dde7;
+            border-radius: 12px;
+
+            color: #6b7280;
+
+            font-style: italic;
+        }
+
+        .report-note {
+            margin-top: 16px;
+            padding-top: 14px;
+
+            border-top: 1px solid #e8edf5;
+
+            color: #556070;
+
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .technical-name {
+            color: #7a8494;
+
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                padding:
+                    20px 12px 36px;
+            }
+
+            .grid-form,
+            .grid-form.two-columns,
+            .grid-form.three-columns {
+                grid-template-columns: 1fr;
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-card.full-width {
+                grid-column: auto;
+            }
+
+            .section {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .section h2 {
+                font-size: 21px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .container {
+                padding:
+                    16px 8px 30px;
+            }
+
+            .section {
+                padding: 15px;
+
+                border-radius: 12px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 14px;
+            }
+
+            .secondary-button,
+            .report-actions button {
+                width: 100%;
+            }
+
+            .report-card .value {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+
+        <header class="page-header">
+            <h1>Conference Management System</h1>
+
+            <p class="subtitle">
+                Система управления участниками научной конференции.<br>
+                Conference participant management system.
+            </p>
+        </header>
+
+
+        <!-- Добавление участника -->
+
+        <section class="section">
+            <h2>Добавить участника</h2>
+
+            <p class="section-description">
+                Заполните данные нового участника конференции.
+            </p>
+
+            <form
+                id="participant-form"
+                class="grid-form"
+            >
+                <input
+                    id="participant-full-name"
+                    type="text"
+                    placeholder="ФИО"
+                    required
+                >
+
+                <input
+                    id="participant-email"
+                    type="email"
+                    placeholder="Email"
+                    required
+                >
+
+                <input
+                    id="participant-phone"
+                    type="text"
+                    placeholder="Телефон"
+                >
+
+                <input
+                    id="participant-organization"
+                    type="text"
+                    placeholder="Организация"
+                >
+
+                <button type="submit">
+                    Добавить участника
+                </button>
+            </form>
+
+            <div
+                id="participant-message"
+                class="message"
+            ></div>
+        </section>
+
+
+        <!-- Участники -->
+
+        <section class="section">
+            <h2>Участники</h2>
+
+            <p class="section-description">
+                Зарегистрированные участники конференции.
+            </p>
+
+            <button
+                type="button"
+                class="secondary-button"
+                onclick="loadParticipants()"
+            >
+                Обновить список
+            </button>
+
+            <div
+                id="participants-message"
+                class="message"
+            ></div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ФИО</th>
+                            <th>Email</th>
+                            <th>Телефон</th>
+                            <th>Организация</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="participants-table-body">
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="empty-table-cell"
+                            >
+                                Загрузка...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- Создание заявки -->
+
+        <section class="section">
+            <h2>Создать заявку</h2>
+
+            <p class="section-description">
+                Укажите ID зарегистрированного участника.
+                Новая заявка создаётся со статусом
+                «Ожидает / Pending».
+            </p>
+
+            <form
+                id="application-form"
+                class="grid-form two-columns"
+            >
+                <input
+                    id="application-participant-id"
+                    type="number"
+                    min="1"
+                    placeholder="ID участника"
+                    required
+                >
+
+                <button type="submit">
+                    Создать заявку
+                </button>
+            </form>
+
+            <div
+                id="application-message"
+                class="message"
+            ></div>
+        </section>
+
+
+        <!-- Оплата -->
+
+        <section class="section">
+            <h2>Зарегистрировать организационный взнос</h2>
+
+            <p class="section-description">
+                Добавьте информацию об оплате участника.
+            </p>
+
+            <form
+                id="payment-form"
+                class="grid-form"
+            >
+                <input
+                    id="payment-participant-id"
+                    type="number"
+                    min="1"
+                    placeholder="ID участника"
+                    required
+                >
+
+                <input
+                    id="payment-amount"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Сумма"
+                    required
+                >
+
+                <select
+                    id="payment-status"
+                    required
+                >
+                    <option value="pending">
+                        Ожидает / Pending
+                    </option>
+
+                    <option value="paid">
+                        Оплачено / Paid
+                    </option>
+
+                    <option value="cancelled">
+                        Отменено / Cancelled
+                    </option>
+                </select>
+
+                <button type="submit">
+                    Добавить оплату
+                </button>
+            </form>
+
+            <div
+                id="payment-message"
+                class="message"
+            ></div>
+        </section>
+
+
+        <!-- Сводный отчёт -->
+
+        <section class="section">
+            <h2>Сводный отчёт</h2>
+
+            <p class="section-description">
+                Общая статистика по текущим данным конференции.
+            </p>
+
+            <div class="report-actions">
+                <button
+                    type="button"
+                    onclick="loadReport()"
+                >
+                    Получить отчёт
+                </button>
+            </div>
+
+            <div
+                id="report-message"
+                class="message"
+            ></div>
+
+            <div
+                id="report-content"
+                class="empty-block"
+            >
+                Нажмите «Получить отчёт», чтобы загрузить
+                статистику.
+            </div>
+        </section>
+
+    </main>
+
+
+    <script>
+        function showMessage(elementId, type, text) {
+            const element =
+                document.getElementById(elementId);
+
+            if (!element) {
+                return;
+            }
+
+            element.className =
+                `message show ${type}`;
+
+            element.textContent = text;
+        }
+
+
+        function clearMessage(elementId) {
+            const element =
+                document.getElementById(elementId);
+
+            if (!element) {
+                return;
+            }
+
+            element.className = "message";
+            element.textContent = "";
+        }
+
+
+        function extractErrorMessage(
+            errorData,
+            fallback = "Произошла ошибка"
+        ) {
+            if (!errorData) {
+                return fallback;
+            }
+
+            if (typeof errorData === "string") {
+                return errorData;
+            }
+
+            if (errorData.detail) {
+                if (
+                    typeof errorData.detail === "string"
+                ) {
+                    return errorData.detail;
+                }
+
+                if (
+                    Array.isArray(errorData.detail)
+                ) {
+                    return errorData.detail
+                        .map(item => {
+                            return (
+                                item.msg ||
+                                JSON.stringify(item)
+                            );
+                        })
+                        .join("; ");
+                }
+            }
+
+            return fallback;
+        }
+
+
+        function escapeHtml(value) {
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return "";
+            }
+
+            return String(value)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+
+        function getStatusLabel(status) {
+            const labels = {
+                pending:
+                    "Ожидает / Pending",
+
+                confirmed:
+                    "Подтверждена / Confirmed",
+
+                rejected:
+                    "Отклонена / Rejected",
+
+                paid:
+                    "Оплачено / Paid",
+
+                cancelled:
+                    "Отменено / Cancelled",
+
+                created:
+                    "Создано / Created",
+
+                sent:
+                    "Отправлено / Sent",
+
+                accepted:
+                    "Принято / Accepted",
+
+                declined:
+                    "Отклонено / Declined",
+
+                submitted:
+                    "Подано / Submitted",
+
+                approved:
+                    "Одобрено / Approved"
+            };
+
+            return labels[status] || status;
+        }
+
+
+        async function readResponse(response) {
+            try {
+                return await response.json();
+            } catch {
+                return null;
+            }
+        }
+
+
+        async function loadParticipants() {
+            clearMessage(
+                "participants-message"
+            );
+
+            const tbody =
+                document.getElementById(
+                    "participants-table-body"
+                );
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="empty-table-cell"
+                    >
+                        Загрузка...
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const response =
+                    await fetch(
+                        "/participants/"
+                    );
+
+                const data =
+                    await readResponse(response);
+
+                if (!response.ok) {
+                    throw data;
+                }
+
+                if (
+                    !Array.isArray(data) ||
+                    data.length === 0
+                ) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="empty-table-cell"
+                            >
+                                Участники пока не добавлены
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+                tbody.innerHTML =
+                    data
+                        .map(participant => {
+                            return `
+                                <tr>
+                                    <td>
+                                        ${escapeHtml(
+                                            participant.id
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            participant.full_name
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            participant.email
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            participant.phone
+                                        )}
+                                    </td>
+
+                                    <td>
+                                        ${escapeHtml(
+                                            participant.organization
+                                        )}
+                                    </td>
+                                </tr>
+                            `;
+                        })
+                        .join("");
+
+            } catch (error) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="empty-table-cell"
+                        >
+                            Не удалось загрузить участников
+                        </td>
+                    </tr>
+                `;
+
+                showMessage(
+                    "participants-message",
+                    "error",
+                    "Не удалось загрузить список участников. " +
+                    extractErrorMessage(
+                        error,
+                        "Проверьте соединение с сервером."
+                    )
+                );
+            }
+        }
+
+
+        document
+            .getElementById(
+                "participant-form"
+            )
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    clearMessage(
+                        "participant-message"
+                    );
+
+                    const form = event.currentTarget;
+
+                    const data = {
+                        full_name:
+                            document
+                                .getElementById(
+                                    "participant-full-name"
+                                )
+                                .value
+                                .trim(),
+
+                        email:
+                            document
+                                .getElementById(
+                                    "participant-email"
+                                )
+                                .value
+                                .trim(),
+
+                        phone:
+                            document
+                                .getElementById(
+                                    "participant-phone"
+                                )
+                                .value
+                                .trim() || null,
+
+                        organization:
+                            document
+                                .getElementById(
+                                    "participant-organization"
+                                )
+                                .value
+                                .trim() || null
+                    };
+
+                    try {
+                        const response =
+                            await fetch(
+                                "/participants/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(data)
+                                }
+                            );
+
+                        const result =
+                            await readResponse(
+                                response
+                            );
+
+                        if (!response.ok) {
+                            throw result;
+                        }
+
+                        showMessage(
+                            "participant-message",
+                            "success",
+                            "Участник успешно добавлен. " +
+                            "Participant created successfully. " +
+                            `ID: ${result.id}`
+                        );
+
+                        form.reset();
+
+                        await loadParticipants();
+
+                    } catch (error) {
+                        showMessage(
+                            "participant-message",
+                            "error",
+                            "Не удалось добавить участника. " +
+                            extractErrorMessage(
+                                error,
+                                "Проверьте введённые данные."
+                            )
+                        );
+                    }
+                }
+            );
+
+
+        document
+            .getElementById(
+                "application-form"
+            )
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    clearMessage(
+                        "application-message"
+                    );
+
+                    const data = {
+                        participant_id:
+                            Number(
+                                document
+                                    .getElementById(
+                                        "application-participant-id"
+                                    )
+                                    .value
+                            )
+                    };
+
+                    try {
+                        const response =
+                            await fetch(
+                                "/applications/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(data)
+                                }
+                            );
+
+                        const result =
+                            await readResponse(
+                                response
+                            );
+
+                        if (!response.ok) {
+                            throw result;
+                        }
+
+                        showMessage(
+                            "application-message",
+                            "success",
+                            "Заявка успешно создана. " +
+                            "Application created successfully. " +
+                            `ID: ${result.id}. ` +
+                            "Статус / Status: " +
+                            getStatusLabel(
+                                result.status
+                            )
+                        );
+
+                        event.currentTarget.reset();
+
+                    } catch (error) {
+                        showMessage(
+                            "application-message",
+                            "error",
+                            "Не удалось создать заявку. " +
+                            extractErrorMessage(
+                                error,
+                                "Проверьте ID участника."
+                            )
+                        );
+                    }
+                }
+            );
+
+
+        document
+            .getElementById(
+                "payment-form"
+            )
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    clearMessage(
+                        "payment-message"
+                    );
+
+                    const data = {
+                        participant_id:
+                            Number(
+                                document
+                                    .getElementById(
+                                        "payment-participant-id"
+                                    )
+                                    .value
+                            ),
+
+                        amount:
+                            Number(
+                                document
+                                    .getElementById(
+                                        "payment-amount"
+                                    )
+                                    .value
+                            ),
+
+                        status:
+                            document
+                                .getElementById(
+                                    "payment-status"
+                                )
+                                .value
+                    };
+
+                    try {
+                        const response =
+                            await fetch(
+                                "/payments/",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(data)
+                                }
+                            );
+
+                        const result =
+                            await readResponse(
+                                response
+                            );
+
+                        if (!response.ok) {
+                            throw result;
+                        }
+
+                        showMessage(
+                            "payment-message",
+                            "success",
+                            "Оплата успешно зарегистрирована. " +
+                            "Payment created successfully. " +
+                            `ID: ${result.id}. ` +
+                            "Статус / Status: " +
+                            getStatusLabel(
+                                result.status
+                            )
+                        );
+
+                        event.currentTarget.reset();
+
+                    } catch (error) {
+                        showMessage(
+                            "payment-message",
+                            "error",
+                            "Не удалось зарегистрировать оплату. " +
+                            extractErrorMessage(
+                                error,
+                                "Проверьте ID участника, сумму и статус."
+                            )
+                        );
+                    }
+                }
+            );
+
+
+        function renderReport(data) {
+            const reportContent =
+                document.getElementById(
+                    "report-content"
+                );
+
+            reportContent.className = "";
+
+            reportContent.innerHTML = `
+                <div class="report-grid">
+
+                    <div class="report-card">
+                        <div class="ru">
+                            Участники
+                        </div>
+
+                        <div class="en">
+                            Participants
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                data.participants ?? 0
+                            )}
+                        </div>
+
+                        <div class="technical-name">
+                            participants
+                        </div>
+                    </div>
+
+
+                    <div class="report-card">
+                        <div class="ru">
+                            Подтверждённые заявки
+                        </div>
+
+                        <div class="en">
+                            Confirmed applications
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                data.confirmed ?? 0
+                            )}
+                        </div>
+
+                        <div class="technical-name">
+                            confirmed
+                        </div>
+                    </div>
+
+
+                    <div class="report-card">
+                        <div class="ru">
+                            Полученные оплаты
+                        </div>
+
+                        <div class="en">
+                            Payments received
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                data.payments_received ?? 0
+                            )}
+                        </div>
+
+                        <div class="technical-name">
+                            payments_received
+                        </div>
+                    </div>
+
+
+                    <div class="report-card">
+                        <div class="ru">
+                            Поданные тезисы
+                        </div>
+
+                        <div class="en">
+                            Theses submitted
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                data.theses_submitted ?? 0
+                            )}
+                        </div>
+
+                        <div class="technical-name">
+                            theses_submitted
+                        </div>
+                    </div>
+
+
+                    <div
+                        class="
+                            report-card
+                            full-width
+                        "
+                    >
+                        <div class="ru">
+                            Требуется гостиница
+                        </div>
+
+                        <div class="en">
+                            Hotel required
+                        </div>
+
+                        <div class="value">
+                            ${escapeHtml(
+                                data.hotel_required ?? 0
+                            )}
+                        </div>
+
+                        <div class="technical-name">
+                            hotel_required
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="report-note">
+                    <strong>RU:</strong>
+                    Отчёт сформирован на основе
+                    текущих данных системы.
+
+                    <br>
+
+                    <strong>EN:</strong>
+                    The report is generated based on
+                    the current system data.
+                </div>
+            `;
+        }
+
+
+        async function loadReport() {
+            clearMessage(
+                "report-message"
+            );
+
+            try {
+                const response =
+                    await fetch(
+                        "/reports/summary"
+                    );
+
+                const data =
+                    await readResponse(
+                        response
+                    );
+
+                if (!response.ok) {
+                    throw data;
+                }
+
+                renderReport(data);
+
+                showMessage(
+                    "report-message",
+                    "success",
+                    "Сводный отчёт успешно загружен. " +
+                    "Summary report loaded successfully."
+                );
+
+            } catch (error) {
+                const reportContent =
+                    document.getElementById(
+                        "report-content"
+                    );
+
+                reportContent.className =
+                    "empty-block";
+
+                reportContent.textContent =
+                    "Не удалось загрузить отчёт. " +
+                    "Unable to load the report.";
+
+                showMessage(
+                    "report-message",
+                    "error",
+                    "Ошибка загрузки отчёта. " +
+                    extractErrorMessage(
+                        error,
+                        "Не удалось получить данные."
+                    )
+                );
+            }
+        }
+
+
+        loadParticipants();
+    </script>
+</body>
+</html>
