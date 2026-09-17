@@ -34,115 +34,61 @@ Conference Management System использует реляционную баз�
 
 \## 2. Схема связей
 
-
-
 ```mermaid
 
 erDiagram
+    PARTICIPANT ||--o{ APPLICATION : "подает"
+    PARTICIPANT ||--o{ INVITATION : "получает"
+    PARTICIPANT ||--o{ PAYMENT : "совершает"
+    PARTICIPANT ||--o{ THESIS : "предоставляет"
+    PARTICIPANT ||--o{ HOTEL_REQUEST : "создает"
 
-&#x20;   PARTICIPANT ||--o{ APPLICATION : "подаёт"
+    PARTICIPANT {
+        int id PK
+        string full_name
+        string email UK
+        string phone
+        string organization
+        datetime created_at
+    }
 
-&#x20;   PARTICIPANT ||--o{ INVITATION : "получает"
+    APPLICATION {
+        int id PK
+        int participant_id FK
+        string status
+        datetime created_at
+    }
 
-&#x20;   PARTICIPANT ||--o{ PAYMENT : "совершает"
+    INVITATION {
+        int id PK
+        int participant_id FK
+        string status
+        datetime sent_at
+    }
 
-&#x20;   PARTICIPANT ||--o{ THESIS : "предоставляет"
+    PAYMENT {
+        int id PK
+        int participant_id FK
+        float amount
+        string status
+        datetime payment_date
+    }
 
-&#x20;   PARTICIPANT ||--o{ HOTEL\_REQUEST : "создаёт"
+    THESIS {
+        int id PK
+        int participant_id FK
+        string title
+        string file_url
+        string status
+    }
 
-
-
-&#x20;   PARTICIPANT {
-
-&#x20;       INTEGER id PK
-
-&#x20;       VARCHAR\_255 full\_name
-
-&#x20;       VARCHAR\_255 email UK
-
-&#x20;       VARCHAR\_50 phone
-
-&#x20;       VARCHAR\_255 organization
-
-&#x20;       DATETIME created\_at
-
-&#x20;   }
-
-
-
-&#x20;   APPLICATION {
-
-&#x20;       INTEGER id PK
-
-&#x20;       INTEGER participant\_id FK
-
-&#x20;       VARCHAR\_50 status
-
-&#x20;       DATETIME created\_at
-
-&#x20;   }
-
-
-
-&#x20;   INVITATION {
-
-&#x20;       INTEGER id PK
-
-&#x20;       INTEGER participant\_id FK
-
-&#x20;       VARCHAR\_50 status
-
-&#x20;       DATETIME sent\_at
-
-&#x20;   }
-
-
-
-&#x20;   PAYMENT {
-
-&#x20;       INTEGER id PK
-
-&#x20;       INTEGER participant\_id FK
-
-&#x20;       FLOAT amount
-
-&#x20;       VARCHAR\_50 status
-
-&#x20;       DATETIME payment\_date
-
-&#x20;   }
-
-
-
-&#x20;   THESIS {
-
-&#x20;       INTEGER id PK
-
-&#x20;       INTEGER participant\_id FK
-
-&#x20;       VARCHAR\_255 title
-
-&#x20;       VARCHAR\_500 file\_url
-
-&#x20;       VARCHAR\_50 status
-
-&#x20;   }
-
-
-
-&#x20;   HOTEL\_REQUEST {
-
-&#x20;       INTEGER id PK
-
-&#x20;       INTEGER participant\_id FK
-
-&#x20;       BOOLEAN required
-
-&#x20;       DATE check\_in
-
-&#x20;       DATE check\_out
-
-&#x20;   }
+    HOTEL_REQUEST {
+        int id PK
+        int participant_id FK
+        boolean required
+        date check_in
+        date check_out
+    }
 
 ```
 
