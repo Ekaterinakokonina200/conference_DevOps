@@ -266,6 +266,8 @@ python -m pytest
 
 git diff --check
 
+
+alembic heads
 ```
 
 
