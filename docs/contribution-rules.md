@@ -268,6 +268,8 @@ git diff --check
 
 alembic current
 
+alembic heads
+
 ```
 
 
