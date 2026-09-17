@@ -266,8 +266,10 @@ python -m pytest
 
 git diff --check
 
+alembic current
 
 alembic heads
+
 ```
 
 
