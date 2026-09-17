@@ -1,8 +1,8 @@
-\# Схема данных Conference Management System
+# Схема данных Conference Management System
 
 
 
-\## 1. Общие сведения
+## 1. Общие сведения
 
 
 
@@ -14,25 +14,25 @@ Conference Management System использует реляционную баз�
 
 
 
-\* `Participant` — участник конференции;
+* `Participant` — участник конференции;
 
-\* `Application` — заявка на участие;
+* `Application` — заявка на участие;
 
-\* `Invitation` — приглашение;
+* `Invitation` — приглашение;
 
-\* `Payment` — организационный взнос;
+* `Payment` — организационный взнос;
 
-\* `Thesis` — тезисы участника;
+* `Thesis` — тезисы участника;
 
-\* `HotelRequest` — заявка на размещение в гостинице.
-
-
-
-Центральной сущностью является `Participant`. Остальные сущности связаны с участником через внешний ключ `participant\_id`.
+* `HotelRequest` — заявка на размещение в гостинице.
 
 
 
-\## 2. Схема связей
+Центральной сущностью является `Participant`. Остальные сущности связаны с участником через внешний ключ `participant_id`.
+
+
+
+## 2. Схема связей
 
 ```mermaid
 
@@ -94,7 +94,7 @@ erDiagram
 
 
 
-\## 3. Обозначения
+## 3. Обозначения
 
 
 
@@ -112,7 +112,7 @@ erDiagram
 
 | `UK`        | Unique Key — уникальное значение     |   |                             |
 
-| `           |                                      | ` | Ровно одна связанная запись |
+| <code>&#124;&#124;</code> | Ровно одна связанная запись |
 
 | `o{`        | Ноль или несколько связанных записей |   |                             |
 
@@ -134,11 +134,11 @@ PARTICIPANT ||--o{ APPLICATION
 
 
 
-\* каждая заявка `Application` обязательно принадлежит одному участнику;
+* каждая заявка `Application` обязательно принадлежит одному участнику;
 
-\* один участник может не иметь заявок;
+* один участник может не иметь заявок;
 
-\* один участник может иметь несколько заявок.
+* один участник может иметь несколько заявок.
 
 
 
@@ -146,7 +146,7 @@ PARTICIPANT ||--o{ APPLICATION
 
 
 
-\## 4. Таблица `participants`
+## 4. Таблица `participants`
 
 
 
@@ -172,7 +172,7 @@ participants
 
 | `id`           | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс                | Уникальный идентификатор участника |
 
-| `full\_name`    | `String(255)`  | `VARCHAR(255)`  | `NOT NULL`                           | ФИО участника                      |
+| `full_name`    | `String(255)`  | `VARCHAR(255)`  | `NOT NULL`                           | ФИО участника                      |
 
 | `email`        | `String(255)`  | `VARCHAR(255)`  | `NOT NULL`, `UNIQUE`, индекс         | Электронная почта участника        |
 
@@ -180,7 +180,7 @@ participants
 
 | `organization` | `String(255)`  | `VARCHAR(255)`  | Может быть `NULL`                    | Организация участника              |
 
-| `created\_at`   | `DateTime`     | `TIMESTAMP`     | `NOT NULL`, значение сервера `NOW()` | Дата и время создания записи       |
+| `created_at`   | `DateTime`     | `TIMESTAMP`     | `NOT NULL`, значение сервера `NOW()` | Дата и время создания записи       |
 
 
 
@@ -188,17 +188,17 @@ participants
 
 
 
-\* поле `email` обязательно;
+* поле `email` обязательно;
 
-\* значение `email` должно быть уникальным;
+* значение `email` должно быть уникальным;
 
-\* `phone` и `organization` являются необязательными;
+* `phone` и `organization` являются необязательными;
 
-\* `created\_at` автоматически заполняется сервером базы данных.
+* `created_at` автоматически заполняется сервером базы данных.
 
 
 
-\## 5. Таблица `applications`
+## 5. Таблица `applications`
 
 
 
@@ -224,11 +224,11 @@ applications
 
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс                | Уникальный идентификатор заявки |
 
-| `participant\_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`            | Идентификатор участника         |
+| `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`            | Идентификатор участника         |
 
 | `status`         | `String(50)`   | `VARCHAR(50)`   | `NOT NULL`, по умолчанию `pending`   | Статус заявки                   |
 
-| `created\_at`     | `DateTime`     | `TIMESTAMP`     | `NOT NULL`, значение сервера `NOW()` | Дата и время создания заявки    |
+| `created_at`     | `DateTime`     | `TIMESTAMP`     | `NOT NULL`, значение сервера `NOW()` | Дата и время создания заявки    |
 
 
 
@@ -238,7 +238,7 @@ applications
 
 ```text
 
-applications.participant\_id → participants.id
+applications.participant_id → participants.id
 
 ```
 
@@ -252,7 +252,7 @@ applications.participant\_id → participants.id
 
 
 
-\### Основное бизнес-правило
+### Основное бизнес-правило
 
 
 
@@ -296,7 +296,7 @@ paid
 
 
 
-\## 6. Таблица `invitations`
+## 6. Таблица `invitations`
 
 
 
@@ -322,11 +322,11 @@ invitations
 
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс              | Уникальный идентификатор приглашения |
 
-| `participant\_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`          | Идентификатор участника              |
+| `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`          | Идентификатор участника              |
 
 | `status`         | `String(50)`   | `VARCHAR(50)`   | `NOT NULL`, по умолчанию `created` | Статус приглашения                   |
 
-| `sent\_at`        | `DateTime`     | `TIMESTAMP`     | Может быть `NULL`                  | Дата и время отправки приглашения    |
+| `sent_at`        | `DateTime`     | `TIMESTAMP`     | Может быть `NULL`                  | Дата и время отправки приглашения    |
 
 
 
@@ -336,7 +336,7 @@ invitations
 
 ```text
 
-invitations.participant\_id → participants.id
+invitations.participant_id → participants.id
 
 ```
 
@@ -350,11 +350,11 @@ invitations.participant\_id → participants.id
 
 
 
-Поле `sent\_at` может оставаться пустым, пока приглашение не отправлено.
+Поле `sent_at` может оставаться пустым, пока приглашение не отправлено.
 
 
 
-\## 7. Таблица `payments`
+## 7. Таблица `payments`
 
 
 
@@ -380,13 +380,13 @@ payments
 
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс              | Уникальный идентификатор платежа |
 
-| `participant\_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`          | Идентификатор участника          |
+| `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`          | Идентификатор участника          |
 
 | `amount`         | `Float`        | `FLOAT`         | `NOT NULL`                         | Сумма организационного взноса    |
 
 | `status`         | `String(50)`   | `VARCHAR(50)`   | `NOT NULL`, по умолчанию `pending` | Статус платежа                   |
 
-| `payment\_date`   | `DateTime`     | `TIMESTAMP`     | Может быть `NULL`                  | Дата и время оплаты              |
+| `payment_date`   | `DateTime`     | `TIMESTAMP`     | Может быть `NULL`                  | Дата и время оплаты              |
 
 
 
@@ -396,7 +396,7 @@ payments
 
 ```text
 
-payments.participant\_id → participants.id
+payments.participant_id → participants.id
 
 ```
 
@@ -410,7 +410,7 @@ payments.participant\_id → participants.id
 
 
 
-Поле `payment\_date` может быть пустым, если платёж ещё не был выполнен.
+Поле `payment_date` может быть пустым, если платёж ещё не был выполнен.
 
 
 
@@ -418,7 +418,7 @@ payments.participant\_id → participants.id
 
 
 
-\## 8. Таблица `theses`
+## 8. Таблица `theses`
 
 
 
@@ -444,11 +444,11 @@ theses
 
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс                | Уникальный идентификатор тезисов |
 
-| `participant\_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`            | Идентификатор участника          |
+| `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`            | Идентификатор участника          |
 
 | `title`          | `String(255)`  | `VARCHAR(255)`  | `NOT NULL`                           | Название тезисов                 |
 
-| `file\_url`       | `String(500)`  | `VARCHAR(500)`  | Может быть `NULL`                    | Ссылка или путь к файлу тезисов  |
+| `file_url`       | `String(500)`  | `VARCHAR(500)`  | Может быть `NULL`                    | Ссылка или путь к файлу тезисов  |
 
 | `status`         | `String(50)`   | `VARCHAR(50)`   | `NOT NULL`, по умолчанию `submitted` | Статус обработки тезисов         |
 
@@ -460,7 +460,7 @@ theses
 
 ```text
 
-theses.participant\_id → participants.id
+theses.participant_id → participants.id
 
 ```
 
@@ -474,11 +474,11 @@ theses.participant\_id → participants.id
 
 
 
-Поле `file\_url` является необязательным.
+Поле `file_url` является необязательным.
 
 
 
-\## 9. Таблица `hotel\_requests`
+## 9. Таблица `hotel_requests`
 
 
 
@@ -492,7 +492,7 @@ theses.participant\_id → participants.id
 
 ```text
 
-hotel\_requests
+hotel_requests
 
 ```
 
@@ -504,13 +504,13 @@ hotel\_requests
 
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс            | Уникальный идентификатор заявки  |
 
-| `participant\_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`        | Идентификатор участника          |
+| `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`        | Идентификатор участника          |
 
 | `required`       | `Boolean`      | `BOOLEAN`       | `NOT NULL`, по умолчанию `false` | Требуется ли участнику гостиница |
 
-| `check\_in`       | `Date`         | `DATE`          | Может быть `NULL`                | Дата заезда                      |
+| `check_in`       | `Date`         | `DATE`          | Может быть `NULL`                | Дата заезда                      |
 
-| `check\_out`      | `Date`         | `DATE`          | Может быть `NULL`                | Дата выезда                      |
+| `check_out`      | `Date`         | `DATE`          | Может быть `NULL`                | Дата выезда                      |
 
 
 
@@ -520,7 +520,7 @@ hotel\_requests
 
 ```text
 
-hotel\_requests.participant\_id → participants.id
+hotel_requests.participant_id → participants.id
 
 ```
 
@@ -534,11 +534,11 @@ hotel\_requests.participant\_id → participants.id
 
 
 
-Поля `check\_in` и `check\_out` могут быть пустыми, если размещение не требуется или даты ещё не определены.
+Поля `check_in` и `check_out` могут быть пустыми, если размещение не требуется или даты ещё не определены.
 
 
 
-\## 10. Сводная таблица связей
+## 10. Сводная таблица связей
 
 
 
@@ -546,19 +546,19 @@ hotel\_requests.participant\_id → participants.id
 
 | -------------------- | ---------------- | ------------------------------- | -------------- |
 
-| `participants`       | `applications`   | `applications.participant\_id`   | Один ко многим |
+| `participants`       | `applications`   | `applications.participant_id`   | Один ко многим |
 
-| `participants`       | `invitations`    | `invitations.participant\_id`    | Один ко многим |
+| `participants`       | `invitations`    | `invitations.participant_id`    | Один ко многим |
 
-| `participants`       | `payments`       | `payments.participant\_id`       | Один ко многим |
+| `participants`       | `payments`       | `payments.participant_id`       | Один ко многим |
 
-| `participants`       | `theses`         | `theses.participant\_id`         | Один ко многим |
+| `participants`       | `theses`         | `theses.participant_id`         | Один ко многим |
 
-| `participants`       | `hotel\_requests` | `hotel\_requests.participant\_id` | Один ко многим |
+| `participants`       | `hotel_requests` | `hotel_requests.participant_id` | Один ко многим |
 
 
 
-Во всех дочерних таблицах поле `participant\_id` имеет ограничение `NOT NULL`.
+Во всех дочерних таблицах поле `participant_id` имеет ограничение `NOT NULL`.
 
 
 
@@ -566,7 +566,7 @@ hotel\_requests.participant\_id → participants.id
 
 
 
-\## 11. Правила целостности данных
+## 11. Правила целостности данных
 
 
 
@@ -578,7 +578,7 @@ hotel\_requests.participant\_id → participants.id
 
 2\. Электронная почта участника обязательна и уникальна.
 
-3\. Каждая дочерняя запись содержит обязательный внешний ключ `participant\_id`.
+3\. Каждая дочерняя запись содержит обязательный внешний ключ `participant_id`.
 
 4\. Внешние ключи ссылаются на `participants.id`.
 
@@ -592,7 +592,7 @@ hotel\_requests.participant\_id → participants.id
 
 
 
-\## 12. Значения по умолчанию
+## 12. Значения по умолчанию
 
 
 
@@ -600,11 +600,11 @@ hotel\_requests.participant\_id → participants.id
 
 | ---------------- | ------------ | -------------------------------- |
 
-| `participants`   | `created\_at` | Текущие дата и время базы данных |
+| `participants`   | `created_at` | Текущие дата и время базы данных |
 
 | `applications`   | `status`     | `pending`                        |
 
-| `applications`   | `created\_at` | Текущие дата и время базы данных |
+| `applications`   | `created_at` | Текущие дата и время базы данных |
 
 | `invitations`    | `status`     | `created`                        |
 
@@ -612,11 +612,11 @@ hotel\_requests.participant\_id → participants.id
 
 | `theses`         | `status`     | `submitted`                      |
 
-| `hotel\_requests` | `required`   | `false`                          |
+| `hotel_requests` | `required`   | `false`                          |
 
 
 
-\## 13. Формирование отчёта
+## 13. Формирование отчёта
 
 
 
@@ -628,15 +628,15 @@ hotel\_requests.participant\_id → participants.id
 
 
 
-\* количество участников;
+* количество участников;
 
-\* количество подтверждённых заявок;
+* количество подтверждённых заявок;
 
-\* количество полученных платежей;
+* количество полученных платежей;
 
-\* количество отправленных тезисов;
+* количество отправленных тезисов;
 
-\* количество участников, которым требуется гостиница.
+* количество участников, которым требуется гостиница.
 
 
 

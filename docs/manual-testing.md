@@ -1,8 +1,8 @@
-\# Ручное тестирование
+# Ручное тестирование
 
 
 
-\## 1. Назначение
+## 1. Назначение
 
 
 
@@ -14,25 +14,25 @@
 
 
 
-\* подготовку окружения;
+* подготовку окружения;
 
-\* применение миграций;
+* применение миграций;
 
-\* запуск приложения;
+* запуск приложения;
 
-\* проверку служебных адресов;
+* проверку служебных адресов;
 
-\* проверку Web-интерфейса;
+* проверку Web-интерфейса;
 
-\* проверку основного бизнес-правила;
+* проверку основного бизнес-правила;
 
-\* проверку сводного отчёта;
+* проверку сводного отчёта;
 
-\* проверку обработки ошибок.
+* проверку обработки ошибок.
 
 
 
-\## 2. Предварительные условия
+## 2. Предварительные условия
 
 
 
@@ -40,13 +40,13 @@
 
 
 
-\* Python;
+* Python;
 
-\* PostgreSQL;
+* PostgreSQL;
 
-\* Git;
+* Git;
 
-\* зависимости проекта.
+* зависимости проекта.
 
 
 
@@ -56,13 +56,13 @@
 
 ```powershell
 
-cd "C:\\Users\\Admin\\Polytech\\DevOps\\conference\_DevOps"
+cd "C:\\Users\\Admin\\Polytech\\DevOps\\conference_DevOps"
 
 ```
 
 
 
-\## 3. Виртуальное окружение
+## 3. Виртуальное окружение
 
 
 
@@ -102,7 +102,7 @@ python -m pip install -r requirements.txt
 
 
 
-\## 4. Переменные окружения
+## 4. Переменные окружения
 
 
 
@@ -138,13 +138,13 @@ notepad .env
 
 ```env
 
-DATABASE\_URL=postgresql://postgres:LOCAL\_PASSWORD@localhost:5432/conference
+DATABASE_URL=postgresql://postgres:LOCAL_PASSWORD@localhost:5432/conference
 
 ```
 
 
 
-Вместо `LOCAL\_PASSWORD` указывается локальный пароль PostgreSQL.
+Вместо `LOCAL_PASSWORD` указывается локальный пароль PostgreSQL.
 
 
 
@@ -152,7 +152,7 @@ DATABASE\_URL=postgresql://postgres:LOCAL\_PASSWORD@localhost:5432/conference
 
 
 
-\## 5. Подготовка базы данных
+## 5. Подготовка базы данных
 
 
 
@@ -212,7 +212,7 @@ alembic heads
 
 
 
-\## 6. Автоматические проверки
+## 6. Автоматические проверки
 
 
 
@@ -272,7 +272,7 @@ git diff --check
 
 
 
-\## 7. Запуск приложения
+## 7. Запуск приложения
 
 
 
@@ -308,7 +308,7 @@ Uvicorn running on http://127.0.0.1:8000
 
 
 
-\## 8. Проверка Health Check
+## 8. Проверка Health Check
 
 
 
@@ -320,9 +320,9 @@ Uvicorn running on http://127.0.0.1:8000
 
 Invoke-RestMethod `
 
-&#x20;   -Method Get `
+    -Method Get `
 
-&#x20;   -Uri "http://127.0.0.1:8000/health"
+    -Uri "http://127.0.0.1:8000/health"
 
 ```
 
@@ -336,7 +336,7 @@ Invoke-RestMethod `
 
 status
 
-\------
+------
 
 ok
 
@@ -364,7 +364,7 @@ Start-Process "http://127.0.0.1:8000/health"
 
 {
 
-&#x20; "status": "ok"
+  "status": "ok"
 
 }
 
@@ -372,7 +372,7 @@ Start-Process "http://127.0.0.1:8000/health"
 
 
 
-\## 9. Проверка Web-интерфейса
+## 9. Проверка Web-интерфейса
 
 
 
@@ -392,27 +392,27 @@ Start-Process "http://127.0.0.1:8000/"
 
 
 
-\* страница загружается;
+* страница загружается;
 
-\* форма создания Participant отображается;
+* форма создания Participant отображается;
 
-\* таблица участников отображается;
+* таблица участников отображается;
 
-\* форма Application отображается;
+* форма Application отображается;
 
-\* форма Payment отображается;
+* форма Payment отображается;
 
-\* кнопка формирования отчёта работает;
+* кнопка формирования отчёта работает;
 
-\* успешные операции сопровождаются сообщениями;
+* успешные операции сопровождаются сообщениями;
 
-\* ошибки сопровождаются понятными сообщениями;
+* ошибки сопровождаются понятными сообщениями;
 
-\* таблица корректно отображается при изменении размера окна.
+* таблица корректно отображается при изменении размера окна.
 
 
 
-\## 10. Проверка Swagger
+## 10. Проверка Swagger
 
 
 
@@ -432,23 +432,23 @@ Start-Process "http://127.0.0.1:8000/docs"
 
 
 
-\* Participants;
+* Participants;
 
-\* Applications;
+* Applications;
 
-\* Invitations;
+* Invitations;
 
-\* Payments;
+* Payments;
 
-\* Theses;
+* Theses;
 
-\* Hotel Requests;
+* Hotel Requests;
 
-\* Reports.
+* Reports.
 
 
 
-\## 11. Создание тестового участника
+## 11. Создание тестового участника
 
 
 
@@ -458,7 +458,7 @@ Start-Process "http://127.0.0.1:8000/docs"
 
 ```powershell
 
-$email = "manual\_$(\[DateTimeOffset]::UtcNow.ToUnixTimeSeconds())@example.com"
+$email = "manual_$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())@example.com"
 
 ```
 
@@ -472,13 +472,13 @@ $email = "manual\_$(\[DateTimeOffset]::UtcNow.ToUnixTimeSeconds())@example.com"
 
 $participantBody = @{
 
-&#x20;   full\_name = "Manual Test Participant"
+    full_name = "Manual Test Participant"
 
-&#x20;   email = $email
+    email = $email
 
-&#x20;   phone = "+79990000000"
+    phone = "+79990000000"
 
-&#x20;   organization = "Test University"
+    organization = "Test University"
 
 } | ConvertTo-Json
 
@@ -494,13 +494,13 @@ $participantBody = @{
 
 $participant = Invoke-RestMethod `
 
-&#x20;   -Method Post `
+    -Method Post `
 
-&#x20;   -Uri "http://127.0.0.1:8000/participants/" `
+    -Uri "http://127.0.0.1:8000/participants/" `
 
-&#x20;   -ContentType "application/json" `
+    -ContentType "application/json" `
 
-&#x20;   -Body $participantBody
+    -Body $participantBody
 
 ```
 
@@ -534,7 +534,7 @@ $participantId = $participant.id
 
 
 
-\## 12. Создание заявки
+## 12. Создание заявки
 
 
 
@@ -546,7 +546,7 @@ $participantId = $participant.id
 
 $applicationBody = @{
 
-&#x20;   participant\_id = $participantId
+    participant_id = $participantId
 
 } | ConvertTo-Json
 
@@ -562,13 +562,13 @@ $applicationBody = @{
 
 $application = Invoke-RestMethod `
 
-&#x20;   -Method Post `
+    -Method Post `
 
-&#x20;   -Uri "http://127.0.0.1:8000/applications/" `
+    -Uri "http://127.0.0.1:8000/applications/" `
 
-&#x20;   -ContentType "application/json" `
+    -ContentType "application/json" `
 
-&#x20;   -Body $applicationBody
+    -Body $applicationBody
 
 ```
 
@@ -610,7 +610,7 @@ pending
 
 
 
-\## 13. Проверка запрета подтверждения без оплаты
+## 13. Проверка запрета подтверждения без оплаты
 
 
 
@@ -622,7 +622,7 @@ pending
 
 $confirmBody = @{
 
-&#x20;   status = "confirmed"
+    status = "confirmed"
 
 } | ConvertTo-Json
 
@@ -638,23 +638,23 @@ $confirmBody = @{
 
 try {
 
-&#x20;   Invoke-RestMethod `
+    Invoke-RestMethod `
 
-&#x20;       -Method Put `
+        -Method Put `
 
-&#x20;       -Uri "http://127.0.0.1:8000/applications/$applicationId" `
+        -Uri "http://127.0.0.1:8000/applications/$applicationId" `
 
-&#x20;       -ContentType "application/json" `
+        -ContentType "application/json" `
 
-&#x20;       -Body $confirmBody
+        -Body $confirmBody
 
 }
 
 catch {
 
-&#x20;   $\_.Exception.Response.StatusCode
+    $_.Exception.Response.StatusCode
 
-&#x20;   $\_.ErrorDetails.Message
+    $_.ErrorDetails.Message
 
 }
 
@@ -690,7 +690,7 @@ Registration fee must be paid before confirmation
 
 
 
-\## 14. Создание оплаченного взноса
+## 14. Создание оплаченного взноса
 
 
 
@@ -702,11 +702,11 @@ Registration fee must be paid before confirmation
 
 $paymentBody = @{
 
-&#x20;   participant\_id = $participantId
+    participant_id = $participantId
 
-&#x20;   amount = 1500
+    amount = 1500
 
-&#x20;   status = "paid"
+    status = "paid"
 
 } | ConvertTo-Json
 
@@ -722,13 +722,13 @@ $paymentBody = @{
 
 $payment = Invoke-RestMethod `
 
-&#x20;   -Method Post `
+    -Method Post `
 
-&#x20;   -Uri "http://127.0.0.1:8000/payments/" `
+    -Uri "http://127.0.0.1:8000/payments/" `
 
-&#x20;   -ContentType "application/json" `
+    -ContentType "application/json" `
 
-&#x20;   -Body $paymentBody
+    -Body $paymentBody
 
 ```
 
@@ -770,11 +770,11 @@ status : paid
 
 
 
-Поле `payment\_date` должно быть заполнено.
+Поле `payment_date` должно быть заполнено.
 
 
 
-\## 15. Повторное подтверждение заявки
+## 15. Повторное подтверждение заявки
 
 
 
@@ -786,13 +786,13 @@ status : paid
 
 $confirmedApplication = Invoke-RestMethod `
 
-&#x20;   -Method Put `
+    -Method Put `
 
-&#x20;   -Uri "http://127.0.0.1:8000/applications/$applicationId" `
+    -Uri "http://127.0.0.1:8000/applications/$applicationId" `
 
-&#x20;   -ContentType "application/json" `
+    -ContentType "application/json" `
 
-&#x20;   -Body $confirmBody
+    -Body $confirmBody
 
 ```
 
@@ -826,7 +826,7 @@ confirmed
 
 
 
-\## 16. Проверка сводного отчёта
+## 16. Проверка сводного отчёта
 
 
 
@@ -838,9 +838,9 @@ confirmed
 
 $report = Invoke-RestMethod `
 
-&#x20;   -Method Get `
+    -Method Get `
 
-&#x20;   -Uri "http://127.0.0.1:8000/reports/summary"
+    -Uri "http://127.0.0.1:8000/reports/summary"
 
 ```
 
@@ -862,19 +862,19 @@ $report
 
 
 
-\* `participants`;
+* `participants`;
 
-\* `confirmed`;
+* `confirmed`;
 
-\* `payments\_received`;
+* `payments_received`;
 
-\* `theses\_submitted`;
+* `theses_submitted`;
 
-\* `hotel\_required`.
+* `hotel_required`.
 
 
 
-\## 17. Проверка некорректной суммы
+## 17. Проверка некорректной суммы
 
 
 
@@ -886,11 +886,11 @@ $report
 
 $invalidPaymentBody = @{
 
-&#x20;   participant\_id = $participantId
+    participant_id = $participantId
 
-&#x20;   amount = -100
+    amount = -100
 
-&#x20;   status = "paid"
+    status = "paid"
 
 } | ConvertTo-Json
 
@@ -906,21 +906,21 @@ $invalidPaymentBody = @{
 
 try {
 
-&#x20;   Invoke-RestMethod `
+    Invoke-RestMethod `
 
-&#x20;       -Method Post `
+        -Method Post `
 
-&#x20;       -Uri "http://127.0.0.1:8000/payments/" `
+        -Uri "http://127.0.0.1:8000/payments/" `
 
-&#x20;       -ContentType "application/json" `
+        -ContentType "application/json" `
 
-&#x20;       -Body $invalidPaymentBody
+        -Body $invalidPaymentBody
 
 }
 
 catch {
 
-&#x20;   $\_.Exception.Response.StatusCode
+    $_.Exception.Response.StatusCode
 
 }
 
@@ -944,7 +944,7 @@ UnprocessableEntity
 
 
 
-\## 18. Удаление тестовых данных
+## 18. Удаление тестовых данных
 
 
 
@@ -956,9 +956,9 @@ UnprocessableEntity
 
 Invoke-RestMethod `
 
-&#x20;   -Method Delete `
+    -Method Delete `
 
-&#x20;   -Uri "http://127.0.0.1:8000/payments/$paymentId"
+    -Uri "http://127.0.0.1:8000/payments/$paymentId"
 
 ```
 
@@ -972,9 +972,9 @@ Invoke-RestMethod `
 
 Invoke-RestMethod `
 
-&#x20;   -Method Delete `
+    -Method Delete `
 
-&#x20;   -Uri "http://127.0.0.1:8000/applications/$applicationId"
+    -Uri "http://127.0.0.1:8000/applications/$applicationId"
 
 ```
 
@@ -988,9 +988,9 @@ Invoke-RestMethod `
 
 Invoke-RestMethod `
 
-&#x20;   -Method Delete `
+    -Method Delete `
 
-&#x20;   -Uri "http://127.0.0.1:8000/participants/$participantId"
+    -Uri "http://127.0.0.1:8000/participants/$participantId"
 
 ```
 
@@ -1000,7 +1000,7 @@ Invoke-RestMethod `
 
 
 
-\## 19. Проверка отсутствующего объекта
+## 19. Проверка отсутствующего объекта
 
 
 
@@ -1012,19 +1012,19 @@ Invoke-RestMethod `
 
 try {
 
-&#x20;   Invoke-RestMethod `
+    Invoke-RestMethod `
 
-&#x20;       -Method Get `
+        -Method Get `
 
-&#x20;       -Uri "http://127.0.0.1:8000/participants/999999"
+        -Uri "http://127.0.0.1:8000/participants/999999"
 
 }
 
 catch {
 
-&#x20;   $\_.Exception.Response.StatusCode
+    $_.Exception.Response.StatusCode
 
-&#x20;   $\_.ErrorDetails.Message
+    $_.ErrorDetails.Message
 
 }
 
@@ -1056,7 +1056,7 @@ Participant not found
 
 
 
-\## 20. Итог ручной проверки
+## 20. Итог ручной проверки
 
 
 
@@ -1064,31 +1064,28 @@ Participant not found
 
 
 
-\* сервер запускается;
+* сервер запускается;
 
-\* `/health` возвращает `200`;
+* `/health` возвращает `200`;
 
-\* Web UI открывается;
+* Web UI открывается;
 
-\* Swagger открывается;
+* Swagger открывается;
 
-\* Participant создаётся;
+* Participant создаётся;
 
-\* Application создаётся;
+* Application создаётся;
 
-\* confirmed без оплаты возвращает `409`;
+* confirmed без оплаты возвращает `409`;
 
-\* Payment со статусом paid создаётся;
+* Payment со статусом paid создаётся;
 
-\* после оплаты Application получает confirmed;
+* после оплаты Application получает confirmed;
 
-\* Report возвращает сводные данные;
+* Report возвращает сводные данные;
 
-\* некорректные данные возвращают `422`;
+* некорректные данные возвращают `422`;
 
-\* отсутствующие объекты возвращают `404`;
+* отсутствующие объекты возвращают `404`;
 
-\* тестовые данные успешно удаляются.
-
-
-
+* тестовые данные успешно удаляются.

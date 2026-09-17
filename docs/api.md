@@ -1,8 +1,8 @@
-\# HTTP API
+# HTTP API
 
 
 
-\## 1. Общая информация
+## 1. Общая информация
 
 
 
@@ -42,7 +42,7 @@ endpoint не указано иное.
 
 
 
-\## 2. Стандартные HTTP-коды
+## 2. Стандартные HTTP-коды
 
 
 
@@ -66,11 +66,11 @@ endpoint не указано иное.
 
 
 
-\## 3. Служебные endpoint
+## 3. Служебные endpoint
 
 
 
-\### 3.1. Web-интерфейс
+### 3.1. Web-интерфейс
 
 
 
@@ -110,7 +110,7 @@ http://127.0.0.1:8000/
 
 
 
-\### 3.2. Проверка работоспособности
+### 3.2. Проверка работоспособности
 
 
 
@@ -146,7 +146,7 @@ GET /health
 
 {
 
-&#x20; "status": "ok"
+  "status": "ok"
 
 }
 
@@ -154,7 +154,7 @@ GET /health
 
 
 
-\### 3.3. Swagger
+### 3.3. Swagger
 
 
 
@@ -172,7 +172,7 @@ FastAPI.
 
 
 
-\### 3.4. Сводный отчёт
+### 3.4. Сводный отчёт
 
 
 
@@ -208,15 +208,15 @@ GET /reports/summary
 
 {
 
-&#x20; "participants": 3,
+  "participants": 3,
 
-&#x20; "confirmed": 1,
+  "confirmed": 1,
 
-&#x20; "payments\_received": 1,
+  "payments_received": 1,
 
-&#x20; "theses\_submitted": 1,
+  "theses_submitted": 1,
 
-&#x20; "hotel\_required": 1
+  "hotel_required": 1
 
 }
 
@@ -236,11 +236,11 @@ GET /reports/summary
 
 | confirmed | Количество подтверждённых заявок |
 
-| payments\_received | Количество оплат со статусом paid |
+| payments_received | Количество оплат со статусом paid |
 
-| theses\_submitted | Количество зарегистрированных тезисов |
+| theses_submitted | Количество зарегистрированных тезисов |
 
-| hotel\_required | Количество запросов, где требуется гостиница |
+| hotel_required | Количество запросов, где требуется гостиница |
 
 
 
@@ -250,15 +250,15 @@ GET /reports/summary
 
 
 
-\---
+---
 
 
 
-\# 4. Participants
+# 4. Participants
 
 
 
-\## 4.1. Создать участника
+## 4.1. Создать участника
 
 
 
@@ -282,13 +282,13 @@ POST /participants/
 
 {
 
-&#x20; "full\_name": "Иванов Иван Иванович",
+  "full_name": "Иванов Иван Иванович",
 
-&#x20; "email": "ivanov@example.com",
+  "email": "ivanov@example.com",
 
-&#x20; "phone": "+79990000000",
+  "phone": "+79990000000",
 
-&#x20; "organization": "Московский Политех"
+  "organization": "Московский Политех"
 
 }
 
@@ -300,9 +300,9 @@ POST /participants/
 
 
 
-\- `full\_name`;
+- `full_name`;
 
-\- `email`.
+- `email`.
 
 
 
@@ -310,9 +310,9 @@ POST /participants/
 
 
 
-\- `phone`;
+- `phone`;
 
-\- `organization`.
+- `organization`.
 
 
 
@@ -336,15 +336,15 @@ POST /participants/
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "full\_name": "Иванов Иван Иванович",
+  "full_name": "Иванов Иван Иванович",
 
-&#x20; "email": "ivanov@example.com",
+  "email": "ivanov@example.com",
 
-&#x20; "phone": "+79990000000",
+  "phone": "+79990000000",
 
-&#x20; "organization": "Московский Политех"
+  "organization": "Московский Политех"
 
 }
 
@@ -374,7 +374,7 @@ POST /participants/
 
 {
 
-&#x20; "detail": "Participant with this email already exists"
+  "detail": "Participant with this email already exists"
 
 }
 
@@ -382,7 +382,7 @@ POST /participants/
 
 
 
-\## 4.2. Получить список участников
+## 4.2. Получить список участников
 
 
 
@@ -416,21 +416,21 @@ GET /participants/
 
 ```json
 
-\[
+[
 
-&#x20; {
+  {
 
-&#x20;   "id": 1,
+    "id": 1,
 
-&#x20;   "full\_name": "Иванов Иван Иванович",
+    "full_name": "Иванов Иван Иванович",
 
-&#x20;   "email": "ivanov@example.com",
+    "email": "ivanov@example.com",
 
-&#x20;   "phone": "+79990000000",
+    "phone": "+79990000000",
 
-&#x20;   "organization": "Московский Политех"
+    "organization": "Московский Политех"
 
-&#x20; }
+  }
 
 ]
 
@@ -444,19 +444,19 @@ GET /participants/
 
 ```json
 
-\[]
+[]
 
 ```
 
 
 
-\## 4.3. Получить участника по ID
+## 4.3. Получить участника по ID
 
 
 
 ```http
 
-GET /participants/{participant\_id}
+GET /participants/{participant_id}
 
 ```
 
@@ -502,7 +502,7 @@ GET /participants/1
 
 {
 
-&#x20; "detail": "Participant not found"
+  "detail": "Participant not found"
 
 }
 
@@ -510,13 +510,13 @@ GET /participants/1
 
 
 
-\## 4.4. Изменить участника
+## 4.4. Изменить участника
 
 
 
 ```http
 
-PUT /participants/{participant\_id}
+PUT /participants/{participant_id}
 
 ```
 
@@ -534,9 +534,9 @@ PUT /participants/{participant\_id}
 
 {
 
-&#x20; "organization": "Новая организация",
+  "organization": "Новая организация",
 
-&#x20; "phone": "+79991112233"
+  "phone": "+79991112233"
 
 }
 
@@ -572,13 +572,13 @@ PUT /participants/{participant\_id}
 
 
 
-\## 4.5. Удалить участника
+## 4.5. Удалить участника
 
 
 
 ```http
 
-DELETE /participants/{participant\_id}
+DELETE /participants/{participant_id}
 
 ```
 
@@ -616,7 +616,7 @@ DELETE /participants/{participant\_id}
 
 {
 
-&#x20; "detail": "Participant not found"
+  "detail": "Participant not found"
 
 }
 
@@ -624,15 +624,15 @@ DELETE /participants/{participant\_id}
 
 
 
-\---
+---
 
 
 
-\# 5. Applications
+# 5. Applications
 
 
 
-\## 5.1. Создать заявку
+## 5.1. Создать заявку
 
 
 
@@ -656,7 +656,7 @@ POST /applications/
 
 {
 
-&#x20; "participant\_id": 1
+  "participant_id": 1
 
 }
 
@@ -696,13 +696,13 @@ pending
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "status": "pending",
+  "status": "pending",
 
-&#x20; "created\_at": "2026-09-16T12:00:00"
+  "created_at": "2026-09-16T12:00:00"
 
 }
 
@@ -726,7 +726,7 @@ pending
 
 {
 
-&#x20; "detail": "Participant not found"
+  "detail": "Participant not found"
 
 }
 
@@ -734,7 +734,7 @@ pending
 
 
 
-\## 5.2. Получить список заявок
+## 5.2. Получить список заявок
 
 
 
@@ -764,19 +764,19 @@ GET /applications/
 
 ```json
 
-\[
+[
 
-&#x20; {
+  {
 
-&#x20;   "id": 1,
+    "id": 1,
 
-&#x20;   "participant\_id": 1,
+    "participant_id": 1,
 
-&#x20;   "status": "pending",
+    "status": "pending",
 
-&#x20;   "created\_at": "2026-09-16T12:00:00"
+    "created_at": "2026-09-16T12:00:00"
 
-&#x20; }
+  }
 
 ]
 
@@ -784,13 +784,13 @@ GET /applications/
 
 
 
-\## 5.3. Получить заявку по ID
+## 5.3. Получить заявку по ID
 
 
 
 ```http
 
-GET /applications/{application\_id}
+GET /applications/{application_id}
 
 ```
 
@@ -824,7 +824,7 @@ GET /applications/{application\_id}
 
 {
 
-&#x20; "detail": "Application not found"
+  "detail": "Application not found"
 
 }
 
@@ -832,13 +832,13 @@ GET /applications/{application\_id}
 
 
 
-\## 5.4. Изменить статус заявки
+## 5.4. Изменить статус заявки
 
 
 
 ```http
 
-PUT /applications/{application\_id}
+PUT /applications/{application_id}
 
 ```
 
@@ -852,7 +852,7 @@ PUT /applications/{application\_id}
 
 {
 
-&#x20; "status": "confirmed"
+  "status": "confirmed"
 
 }
 
@@ -864,11 +864,11 @@ PUT /applications/{application\_id}
 
 
 
-\- `pending`;
+- `pending`;
 
-\- `confirmed`;
+- `confirmed`;
 
-\- `rejected`.
+- `rejected`.
 
 
 
@@ -884,7 +884,7 @@ PUT /applications/{application\_id}
 
 
 
-\### Бизнес-правило оплаты
+### Бизнес-правило оплаты
 
 
 
@@ -910,7 +910,7 @@ PUT /applications/{application\_id}
 
 {
 
-&#x20; "detail": "Registration fee must be paid before confirmation"
+  "detail": "Registration fee must be paid before confirmation"
 
 }
 
@@ -932,13 +932,13 @@ PUT /applications/{application\_id}
 
 
 
-\## 5.5. Удалить заявку
+## 5.5. Удалить заявку
 
 
 
 ```http
 
-DELETE /applications/{application\_id}
+DELETE /applications/{application_id}
 
 ```
 
@@ -968,15 +968,15 @@ DELETE /applications/{application\_id}
 
 
 
-\---
+---
 
 
 
-\# 6. Invitations
+# 6. Invitations
 
 
 
-\## 6.1. Создать приглашение
+## 6.1. Создать приглашение
 
 
 
@@ -996,7 +996,7 @@ POST /invitations/
 
 {
 
-&#x20; "participant\_id": 1
+  "participant_id": 1
 
 }
 
@@ -1036,13 +1036,13 @@ created
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "status": "created",
+  "status": "created",
 
-&#x20; "sent\_at": null
+  "sent_at": null
 
 }
 
@@ -1062,7 +1062,7 @@ created
 
 
 
-\## 6.2. Получить список приглашений
+## 6.2. Получить список приглашений
 
 
 
@@ -1086,13 +1086,13 @@ GET /invitations/
 
 
 
-\## 6.3. Получить приглашение по ID
+## 6.3. Получить приглашение по ID
 
 
 
 ```http
 
-GET /invitations/{invitation\_id}
+GET /invitations/{invitation_id}
 
 ```
 
@@ -1102,19 +1102,19 @@ GET /invitations/{invitation\_id}
 
 
 
-\- `200 OK` — приглашение найдено;
+- `200 OK` — приглашение найдено;
 
-\- `404 Not Found` — приглашение отсутствует.
+- `404 Not Found` — приглашение отсутствует.
 
 
 
-\## 6.4. Изменить статус приглашения
+## 6.4. Изменить статус приглашения
 
 
 
 ```http
 
-PUT /invitations/{invitation\_id}
+PUT /invitations/{invitation_id}
 
 ```
 
@@ -1128,7 +1128,7 @@ PUT /invitations/{invitation\_id}
 
 {
 
-&#x20; "status": "sent"
+  "status": "sent"
 
 }
 
@@ -1140,17 +1140,17 @@ PUT /invitations/{invitation\_id}
 
 
 
-\- `created`;
+- `created`;
 
-\- `sent`;
+- `sent`;
 
-\- `accepted`;
+- `accepted`;
 
-\- `declined`.
+- `declined`.
 
 
 
-При переводе в статус `sent` поле `sent\_at` заполняется
+При переводе в статус `sent` поле `sent_at` заполняется
 
 текущей датой и временем.
 
@@ -1180,13 +1180,13 @@ PUT /invitations/{invitation\_id}
 
 
 
-\## 6.5. Удалить приглашение
+## 6.5. Удалить приглашение
 
 
 
 ```http
 
-DELETE /invitations/{invitation\_id}
+DELETE /invitations/{invitation_id}
 
 ```
 
@@ -1216,15 +1216,15 @@ DELETE /invitations/{invitation\_id}
 
 
 
-\---
+---
 
 
 
-\# 7. Payments
+# 7. Payments
 
 
 
-\## 7.1. Создать оплату
+## 7.1. Создать оплату
 
 
 
@@ -1244,11 +1244,11 @@ POST /payments/
 
 {
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "amount": 1500,
+  "amount": 1500,
 
-&#x20; "status": "paid"
+  "status": "paid"
 
 }
 
@@ -1264,7 +1264,7 @@ POST /payments/
 
 |---|---|---|
 
-| participant\_id | Да | ID участника |
+| participant_id | Да | ID участника |
 
 | amount | Да | Сумма, больше нуля |
 
@@ -1276,11 +1276,11 @@ POST /payments/
 
 
 
-\- `pending`;
+- `pending`;
 
-\- `paid`;
+- `paid`;
 
-\- `cancelled`.
+- `cancelled`.
 
 
 
@@ -1304,15 +1304,15 @@ POST /payments/
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "amount": 1500,
+  "amount": 1500,
 
-&#x20; "status": "paid",
+  "status": "paid",
 
-&#x20; "payment\_date": "2026-09-16T12:00:00"
+  "payment_date": "2026-09-16T12:00:00"
 
 }
 
@@ -1344,7 +1344,7 @@ POST /payments/
 
 
 
-\## 7.2. Получить список оплат
+## 7.2. Получить список оплат
 
 
 
@@ -1368,13 +1368,13 @@ GET /payments/
 
 
 
-\## 7.3. Получить оплату по ID
+## 7.3. Получить оплату по ID
 
 
 
 ```http
 
-GET /payments/{payment\_id}
+GET /payments/{payment_id}
 
 ```
 
@@ -1384,19 +1384,19 @@ GET /payments/{payment\_id}
 
 
 
-\- `200 OK` — оплата найдена;
+- `200 OK` — оплата найдена;
 
-\- `404 Not Found` — оплата не найдена.
+- `404 Not Found` — оплата не найдена.
 
 
 
-\## 7.4. Изменить статус оплаты
+## 7.4. Изменить статус оплаты
 
 
 
 ```http
 
-PUT /payments/{payment\_id}
+PUT /payments/{payment_id}
 
 ```
 
@@ -1410,7 +1410,7 @@ PUT /payments/{payment\_id}
 
 {
 
-&#x20; "status": "paid"
+  "status": "paid"
 
 }
 
@@ -1418,7 +1418,7 @@ PUT /payments/{payment\_id}
 
 
 
-Если статус меняется на `paid`, поле `payment\_date`
+Если статус меняется на `paid`, поле `payment_date`
 
 заполняется текущей датой и временем.
 
@@ -1426,7 +1426,7 @@ PUT /payments/{payment\_id}
 
 Если статус меняется с `paid` на другой статус,
 
-`payment\_date` очищается.
+`payment_date` очищается.
 
 
 
@@ -1454,13 +1454,13 @@ PUT /payments/{payment\_id}
 
 
 
-\## 7.5. Удалить оплату
+## 7.5. Удалить оплату
 
 
 
 ```http
 
-DELETE /payments/{payment\_id}
+DELETE /payments/{payment_id}
 
 ```
 
@@ -1498,7 +1498,7 @@ DELETE /payments/{payment\_id}
 
 {
 
-&#x20; "detail": "Payment not found"
+  "detail": "Payment not found"
 
 }
 
@@ -1506,15 +1506,15 @@ DELETE /payments/{payment\_id}
 
 
 
-\---
+---
 
 
 
-\# 8. Theses
+# 8. Theses
 
 
 
-\## 8.1. Создать тезис
+## 8.1. Создать тезис
 
 
 
@@ -1534,11 +1534,11 @@ POST /theses/
 
 {
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "title": "Информационная безопасность автоматизированных систем",
+  "title": "Информационная безопасность автоматизированных систем",
 
-&#x20; "file\_url": "https://example.com/thesis.pdf"
+  "file_url": "https://example.com/thesis.pdf"
 
 }
 
@@ -1578,15 +1578,15 @@ submitted
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "title": "Информационная безопасность автоматизированных систем",
+  "title": "Информационная безопасность автоматизированных систем",
 
-&#x20; "file\_url": "https://example.com/thesis.pdf",
+  "file_url": "https://example.com/thesis.pdf",
 
-&#x20; "status": "submitted"
+  "status": "submitted"
 
 }
 
@@ -1606,7 +1606,7 @@ submitted
 
 
 
-\## 8.2. Получить список тезисов
+## 8.2. Получить список тезисов
 
 
 
@@ -1630,13 +1630,13 @@ GET /theses/
 
 
 
-\## 8.3. Получить тезис по ID
+## 8.3. Получить тезис по ID
 
 
 
 ```http
 
-GET /theses/{thesis\_id}
+GET /theses/{thesis_id}
 
 ```
 
@@ -1646,19 +1646,19 @@ GET /theses/{thesis\_id}
 
 
 
-\- `200 OK` — тезис найден;
+- `200 OK` — тезис найден;
 
-\- `404 Not Found` — тезис не найден.
+- `404 Not Found` — тезис не найден.
 
 
 
-\## 8.4. Изменить статус тезиса
+## 8.4. Изменить статус тезиса
 
 
 
 ```http
 
-PUT /theses/{thesis\_id}
+PUT /theses/{thesis_id}
 
 ```
 
@@ -1672,7 +1672,7 @@ PUT /theses/{thesis\_id}
 
 {
 
-&#x20; "status": "approved"
+  "status": "approved"
 
 }
 
@@ -1684,11 +1684,11 @@ PUT /theses/{thesis\_id}
 
 
 
-\- `submitted`;
+- `submitted`;
 
-\- `approved`;
+- `approved`;
 
-\- `rejected`.
+- `rejected`.
 
 
 
@@ -1716,13 +1716,13 @@ PUT /theses/{thesis\_id}
 
 
 
-\## 8.5. Удалить тезис
+## 8.5. Удалить тезис
 
 
 
 ```http
 
-DELETE /theses/{thesis\_id}
+DELETE /theses/{thesis_id}
 
 ```
 
@@ -1752,15 +1752,15 @@ DELETE /theses/{thesis\_id}
 
 
 
-\---
+---
 
 
 
-\# 9. Hotel Requests
+# 9. Hotel Requests
 
 
 
-\## 9.1. Создать запрос на гостиницу
+## 9.1. Создать запрос на гостиницу
 
 
 
@@ -1780,13 +1780,13 @@ POST /hotel-requests/
 
 {
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "required": true,
+  "required": true,
 
-&#x20; "check\_in": "2026-10-10",
+  "check_in": "2026-10-10",
 
-&#x20; "check\_out": "2026-10-12"
+  "check_out": "2026-10-12"
 
 }
 
@@ -1802,13 +1802,13 @@ POST /hotel-requests/
 
 {
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "required": false,
+  "required": false,
 
-&#x20; "check\_in": null,
+  "check_in": null,
 
-&#x20; "check\_out": null
+  "check_out": null
 
 }
 
@@ -1836,15 +1836,15 @@ POST /hotel-requests/
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "required": true,
+  "required": true,
 
-&#x20; "check\_in": "2026-10-10",
+  "check_in": "2026-10-10",
 
-&#x20; "check\_out": "2026-10-12"
+  "check_out": "2026-10-12"
 
 }
 
@@ -1856,9 +1856,9 @@ POST /hotel-requests/
 
 
 
-\- если `required = true`, обе даты обязательны;
+- если `required = true`, обе даты обязательны;
 
-\- `check\_out` должен быть позже `check\_in`.
+- `check_out` должен быть позже `check_in`.
 
 
 
@@ -1876,7 +1876,7 @@ POST /hotel-requests/
 
 
 
-\## 9.2. Получить список запросов
+## 9.2. Получить список запросов
 
 
 
@@ -1900,13 +1900,13 @@ GET /hotel-requests/
 
 
 
-\## 9.3. Получить запрос по ID
+## 9.3. Получить запрос по ID
 
 
 
 ```http
 
-GET /hotel-requests/{request\_id}
+GET /hotel-requests/{request_id}
 
 ```
 
@@ -1916,19 +1916,19 @@ GET /hotel-requests/{request\_id}
 
 
 
-\- `200 OK` — запрос найден;
+- `200 OK` — запрос найден;
 
-\- `404 Not Found` — запрос не найден.
+- `404 Not Found` — запрос не найден.
 
 
 
-\## 9.4. Изменить запрос
+## 9.4. Изменить запрос
 
 
 
 ```http
 
-PUT /hotel-requests/{request\_id}
+PUT /hotel-requests/{request_id}
 
 ```
 
@@ -1942,11 +1942,11 @@ PUT /hotel-requests/{request\_id}
 
 {
 
-&#x20; "required": true,
+  "required": true,
 
-&#x20; "check\_in": "2026-10-11",
+  "check_in": "2026-10-11",
 
-&#x20; "check\_out": "2026-10-13"
+  "check_out": "2026-10-13"
 
 }
 
@@ -1970,19 +1970,19 @@ PUT /hotel-requests/{request\_id}
 
 
 
-\- `404 Not Found` — запрос не найден;
+- `404 Not Found` — запрос не найден;
 
-\- `422 Unprocessable Entity` — даты указаны неправильно.
+- `422 Unprocessable Entity` — даты указаны неправильно.
 
 
 
-\## 9.5. Удалить запрос
+## 9.5. Удалить запрос
 
 
 
 ```http
 
-DELETE /hotel-requests/{request\_id}
+DELETE /hotel-requests/{request_id}
 
 ```
 
@@ -2012,11 +2012,11 @@ DELETE /hotel-requests/{request\_id}
 
 
 
-\---
+---
 
 
 
-\# 10. Основной сценарий проверки API
+# 10. Основной сценарий проверки API
 
 
 
@@ -2046,7 +2046,7 @@ DELETE /hotel-requests/{request\_id}
 
 
 
-\## Ожидаемая ошибка до оплаты
+## Ожидаемая ошибка до оплаты
 
 
 
@@ -2054,7 +2054,7 @@ DELETE /hotel-requests/{request\_id}
 
 {
 
-&#x20; "detail": "Registration fee must be paid before confirmation"
+  "detail": "Registration fee must be paid before confirmation"
 
 }
 
@@ -2062,7 +2062,7 @@ DELETE /hotel-requests/{request\_id}
 
 
 
-\## Ожидаемый результат после оплаты
+## Ожидаемый результат после оплаты
 
 
 
@@ -2070,13 +2070,13 @@ DELETE /hotel-requests/{request\_id}
 
 {
 
-&#x20; "id": 1,
+  "id": 1,
 
-&#x20; "participant\_id": 1,
+  "participant_id": 1,
 
-&#x20; "status": "confirmed",
+  "status": "confirmed",
 
-&#x20; "created\_at": "2026-09-16T12:00:00"
+  "created_at": "2026-09-16T12:00:00"
 
 }
 
@@ -2084,7 +2084,7 @@ DELETE /hotel-requests/{request\_id}
 
 
 
-\# 11. Валидация данных
+# 11. Валидация данных
 
 
 
@@ -2096,21 +2096,21 @@ FastAPI и Pydantic автоматически проверяют входные
 
 
 
-\- email имеет неправильный формат;
+- email имеет неправильный формат;
 
-\- отсутствует обязательное поле;
+- отсутствует обязательное поле;
 
-\- сумма Payment равна нулю или меньше нуля;
+- сумма Payment равна нулю или меньше нуля;
 
-\- передан недопустимый статус;
+- передан недопустимый статус;
 
-\- дата выезда раньше даты заезда;
+- дата выезда раньше даты заезда;
 
-\- гостиница требуется, но даты не указаны.
+- гостиница требуется, но даты не указаны.
 
 
 
-\# 12. Проверка через Swagger
+# 12. Проверка через Swagger
 
 
 
@@ -2131,4 +2131,3 @@ FastAPI и Pydantic автоматически проверяют входные
 6\. Нажать `Execute`.
 
 7\. Проверить HTTP-код и тело ответа.
-
