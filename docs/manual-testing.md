@@ -100,7 +100,7 @@ alembic heads
 Ожидаемая revision:
 
 ```text
-1dbb1a8d5df8
+c027a5eb74d0
 ```
 
 Значения `current` и `heads` должны совпадать.
@@ -527,7 +527,177 @@ NotFound
 Participant not found
 ```
 
-## 20. Итог ручной проверки
+## 20. Регистрация через Web UI
+
+Открыть:
+
+```text
+http://127.0.0.1:8000/
+```
+
+В форме регистрации указать:
+
+```text
+username: manual_auth_user
+password: StrongPassword123!
+```
+
+Нажать «Зарегистрироваться».
+
+Ожидается сообщение об успешной регистрации.
+
+## 21. Повторная регистрация
+
+Повторить регистрацию с тем же username.
+
+Ожидается ошибка `409 Conflict` и сообщение о существующей
+учётной записи.
+
+## 22. Вход через Web UI
+
+В форме входа указать зарегистрированные username и password.
+
+Нажать «Войти».
+
+Ожидается:
+
+- формы скрылись;
+- отображается текущий пользователь;
+- появилась кнопка «Выйти»;
+- JWT не отображается.
+
+Обновить страницу через `F5`.
+
+Ожидается, что пользователь остаётся авторизованным.
+
+Нажать «Выйти».
+
+Ожидается возвращение форм регистрации и входа.
+
+## 23. Регистрация через API
+
+```powershell
+$authUsername = "manual_$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())"
+$authPassword = "StrongPassword123!"
+
+$registerBody = @{
+    username = $authUsername
+    password = $authPassword
+} | ConvertTo-Json
+
+$registeredUser = Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://127.0.0.1:8000/auth/register" `
+    -ContentType "application/json" `
+    -Body $registerBody
+
+$registeredUser
+```
+
+Ожидается `201 Created`.
+
+Пароль и `password_hash` должны отсутствовать.
+
+## 24. Вход через API
+
+```powershell
+$loginResponse = Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://127.0.0.1:8000/auth/login" `
+    -ContentType "application/x-www-form-urlencoded" `
+    -Body @{
+        username = $authUsername
+        password = $authPassword
+    }
+
+$token = $loginResponse.access_token
+$loginResponse.token_type
+```
+
+Ожидается:
+
+```text
+bearer
+```
+
+Полный JWT нельзя добавлять в отчёт.
+
+## 25. Получение текущего пользователя
+
+```powershell
+$currentUser = Invoke-RestMethod `
+    -Method Get `
+    -Uri "http://127.0.0.1:8000/auth/me" `
+    -Headers @{
+        Authorization = "Bearer $token"
+    }
+
+$currentUser
+```
+
+Ожидается `200 OK` и правильный username.
+
+## 26. Доступ без JWT
+
+```powershell
+try {
+    Invoke-RestMethod `
+        -Method Get `
+        -Uri "http://127.0.0.1:8000/auth/me"
+}
+catch {
+    $_.Exception.Response.StatusCode
+    $_.ErrorDetails.Message
+}
+```
+
+Ожидается `401 Unauthorized`.
+
+## 27. Неправильный пароль
+
+```powershell
+try {
+    Invoke-RestMethod `
+        -Method Post `
+        -Uri "http://127.0.0.1:8000/auth/login" `
+        -ContentType "application/x-www-form-urlencoded" `
+        -Body @{
+            username = $authUsername
+            password = "WrongPassword123!"
+        }
+}
+catch {
+    $_.Exception.Response.StatusCode
+    $_.ErrorDetails.Message
+}
+```
+
+Ожидается `401 Unauthorized`.
+
+## 28. Swagger OAuth2
+
+Открыть:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+Нажать `Authorize`.
+
+Заполнить:
+
+- username;
+- password;
+- `client_id` оставить пустым;
+- `client_secret` оставить пустым.
+
+После авторизации выполнить `GET /auth/me`.
+
+Ожидается `200 OK`.
+
+После `Logout` запрос без JWT должен вернуть `401`.
+
+## 29. Итог ручной проверки
 
 Ручная проверка считается успешной, если:
 
@@ -543,4 +713,13 @@ Participant not found
 * Report возвращает сводные данные;
 * некорректные данные возвращают `422`;
 * отсутствующие объекты возвращают `404`;
-* тестовые данные успешно удаляются.
+* тестовые данные успешно удаляются;
+* регистрация через Web UI работает;
+* вход через Web UI работает;
+* выход удаляет JWT;
+* регистрация через API возвращает `201`;
+* повторный username возвращает `409`;
+* неправильный пароль возвращает `401`;
+* `/auth/me` без JWT возвращает `401`;
+* `/auth/me` с JWT возвращает пользователя;
+* пароли и хеши отсутствуют в ответах.
