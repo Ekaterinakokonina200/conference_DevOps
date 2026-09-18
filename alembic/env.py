@@ -13,6 +13,7 @@ from app.models import (
     Participant,
     Payment,
     Thesis,
+    User,
 )
 
 loaded_models = (
@@ -22,6 +23,7 @@ loaded_models = (
     Participant,
     Payment,
     Thesis,
+    User,
 )
 
 load_dotenv()
