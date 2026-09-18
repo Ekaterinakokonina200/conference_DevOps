@@ -19,6 +19,8 @@ http://127.0.0.1:8000/docs
 
 Все запросы и ответы используют формат JSON, если для конкретного
 endpoint не указано иное.
+Исключением является `POST /auth/login`: он принимает данные
+в формате `application/x-www-form-urlencoded`.
 
 ## 2. Стандартные HTTP-коды
 
@@ -31,10 +33,21 @@ endpoint не указано иное.
 | 409 Conflict | Нарушено бизнес-правило |
 | 422 Unprocessable Entity | Ошибка проверки входных данных |
 | 500 Internal Server Error | Внутренняя ошибка сервера |
+| 401 Unauthorized | Аутентификация отсутствует или неуспешна |
+| 403 Forbidden | Учётная запись неактивна |
 
 ## 3. Служебные endpoint
 
 ### 3.1. Web-интерфейс
+
+#### 3.1.1. Web-интерфейс позволяет:
+
+- зарегистрироваться;
+- выполнить вход;
+- восстановить сеанс по сохранённому JWT;
+- получить текущего пользователя;
+- выйти из учётной записи;
+- выполнить основные операции системы.
 
 ```http
 GET /
@@ -1065,3 +1078,180 @@ FastAPI и Pydantic автоматически проверяют входные
 5. Ввести данные.
 6. Нажать `Execute`.
 7. Проверить HTTP-код и тело ответа.
+
+
+# 13. Authentication
+
+## 13.1. Регистрация
+
+```http
+POST /auth/register
+```
+
+Заголовок:
+
+```http
+Content-Type: application/json
+```
+
+Запрос:
+
+```json
+{
+  "username": "conference_user",
+  "password": "StrongPassword123!"
+}
+```
+
+Ограничения:
+
+- username — от 3 до 50 символов;
+- допустимы латинские буквы, цифры, `.`, `_`, `-`;
+- password — от 8 до 128 символов.
+
+Успешный ответ:
+
+```text
+201 Created
+```
+
+```json
+{
+  "id": 1,
+  "username": "conference_user",
+  "is_active": true,
+  "created_at": "2026-09-18T18:00:00"
+}
+```
+
+Пароль и `password_hash` не возвращаются.
+
+Повторный username:
+
+```text
+409 Conflict
+```
+
+```json
+{
+  "detail": "User with this username already exists"
+}
+```
+
+Некорректные данные возвращают `422 Unprocessable Entity`.
+
+## 13.2. Вход
+
+```http
+POST /auth/login
+```
+
+Тип данных:
+
+```http
+Content-Type: application/x-www-form-urlencoded
+```
+
+Обязательные поля:
+
+- `username`;
+- `password`.
+
+Поля `client_id` и `client_secret` в текущей версии
+не используются.
+
+Успешный ответ:
+
+```text
+200 OK
+```
+
+```json
+{
+  "access_token": "<JWT>",
+  "token_type": "bearer"
+}
+```
+
+Неправильные данные:
+
+```text
+401 Unauthorized
+```
+
+```json
+{
+  "detail": "Incorrect username or password"
+}
+```
+
+## 13.3. Текущий пользователь
+
+```http
+GET /auth/me
+```
+
+Требуемый заголовок:
+
+```http
+Authorization: Bearer <JWT>
+```
+
+Успешный ответ:
+
+```text
+200 OK
+```
+
+```json
+{
+  "id": 1,
+  "username": "conference_user",
+  "is_active": true,
+  "created_at": "2026-09-18T18:00:00"
+}
+```
+
+Ошибки:
+
+| Код | Причина |
+|---|---|
+| `401` | Токен отсутствует, недействителен или просрочен |
+| `403` | Учётная запись неактивна |
+
+Ответ при неправильном токене:
+
+```json
+{
+  "detail": "Could not validate credentials"
+}
+```
+
+## 13.4. JWT
+
+JWT содержит:
+
+| Поле | Назначение |
+|---|---|
+| `sub` | Username пользователя |
+| `exp` | Время окончания действия |
+
+Настройки:
+
+- `JWT_SECRET_KEY`;
+- `JWT_ALGORITHM`;
+- `ACCESS_TOKEN_EXPIRE_MINUTES`.
+
+JWT нельзя публиковать в GitHub или документации.
+
+## 13.5. Область защиты
+
+В текущей версии JWT защищает:
+
+```http
+GET /auth/me
+```
+
+Маршруты управления конференцией остаются общедоступными.
+
+Ролевая модель не реализована.

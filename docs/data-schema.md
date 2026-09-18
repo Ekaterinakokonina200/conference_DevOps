@@ -6,6 +6,7 @@ Conference Management System использует реляционную баз�
 
 В системе используются следующие сущности:
 
+* `User` — учётная запись пользователя системы;
 * `Participant` — участник конференции;
 * `Application` — заявка на участие;
 * `Invitation` — приглашение;
@@ -14,6 +15,8 @@ Conference Management System использует реляционную баз�
 * `HotelRequest` — заявка на размещение в гостинице.
 
 Центральной сущностью является `Participant`. Остальные сущности связаны с участником через внешний ключ `participant_id`.
+`User` является отдельной сущностью аутентификации и не связан
+внешним ключом с `Participant`.
 
 ## 2. Схема связей
 ```mermaid
@@ -23,6 +26,15 @@ erDiagram
     PARTICIPANT ||--o{ PAYMENT : "совершает"
     PARTICIPANT ||--o{ THESIS : "предоставляет"
     PARTICIPANT ||--o{ HOTEL_REQUEST : "создает"
+
+    USER {
+        int id PK
+        string username UK
+        string password_hash
+        boolean is_active
+        datetime created_at
+    }
+
     PARTICIPANT {
         int id PK
         string full_name
@@ -31,18 +43,21 @@ erDiagram
         string organization
         datetime created_at
     }
+
     APPLICATION {
         int id PK
         int participant_id FK
         string status
         datetime created_at
     }
+
     INVITATION {
         int id PK
         int participant_id FK
         string status
         datetime sent_at
     }
+
     PAYMENT {
         int id PK
         int participant_id FK
@@ -50,6 +65,7 @@ erDiagram
         string status
         datetime payment_date
     }
+
     THESIS {
         int id PK
         int participant_id FK
@@ -57,6 +73,7 @@ erDiagram
         string file_url
         string status
     }
+
     HOTEL_REQUEST {
         int id PK
         int participant_id FK
@@ -91,6 +108,32 @@ PARTICIPANT ||--o{ APPLICATION
 * один участник может иметь несколько заявок.
 
 Аналогичный принцип используется для приглашений, платежей, тезисов и заявок на гостиницу.
+
+### 3.1. Таблица `users`
+
+Таблица хранит учётные записи пользователей.
+
+Имя таблицы:
+
+```text
+users
+```
+
+| Поле            | Тип SQLAlchemy | Тип базы данных            | Ограничения                     | Назначение                 |
+| --------------- | -------------- | -------------------------- | ------------------------------- | -------------------------- |
+| `id`            | `Integer`      | `INTEGER`                  | `PRIMARY KEY`, индекс           | Идентификатор пользователя |
+| `username`      | `String(50)`   | `VARCHAR(100)`             | `NOT NULL`, `UNIQUE`, индекс    | Имя пользователя           |
+| `password_hash` | `String(255)`  | `VARCHAR(255)`             | `NOT NULL`                      | Argon2-хеш пароля          |
+| `is_active`     | `Boolean`      | `BOOLEAN`                  | `NOT NULL`, значение ORM `true` | Активность пользователя    |
+| `created_at`    | `DateTime`     | `TIMESTAMP WITH TIME ZONE` | `NOT NULL`, `NOW()`             | Дата создания              |
+
+Ограничения API:
+
+* username содержит от 3 до 50 символов;
+* username может содержать латинские буквы, цифры, точку, дефис и подчёркивание;
+* password содержит от 8 до 128 символов;
+* password не хранится в базе;
+* password_hash не возвращается через API.
 
 ## 4. Таблица `participants`
 
@@ -314,6 +357,10 @@ hotel_requests.participant_id → participants.id
 6. Перед удалением участника необходимо сначала удалить связанные дочерние записи.
 7. Даты создания участника и заявки автоматически устанавливаются сервером базы данных.
 8. Статусы новых записей получают начальные значения, определённые моделями.
+9. Поле `users.username` является обязательным и уникальным.
+10. Поле `users.password_hash` является обязательным.
+11. Открытый пароль пользователя не хранится в базе данных.
+12. Сущность `User` не имеет внешних ключей к предметным сущностям.
 
 ## 12. Значения по умолчанию
 
