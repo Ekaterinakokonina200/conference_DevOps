@@ -156,6 +156,57 @@
             background: #e5ebf4;
         }
 
+        .auth-layout {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .auth-panel {
+            min-width: 0;
+            padding: 18px;
+            background: #f8fbff;
+            border: 1px solid #dbe7ff;
+            border-radius: 14px;
+        }
+
+        .auth-panel h3 {
+            margin: 0 0 14px;
+            font-size: 18px;
+        }
+
+        .auth-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .auth-user-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 18px;
+            background: #eaf8ee;
+            border: 1px solid #b8e2c2;
+            border-radius: 14px;
+        }
+
+        .auth-user-name {
+            font-weight: 700;
+            color: #1f6b38;
+        }
+
+        .auth-user-panel button {
+            width: auto;
+            min-width: 140px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
         .message {
             display: none;
 
@@ -402,6 +453,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .auth-layout {
+                grid-template-columns: 1fr;
+            }
+
             .report-card.full-width {
                 grid-column: auto;
             }
@@ -469,6 +524,112 @@
             </p>
         </header>
 
+                <!-- Аутентификация -->
+
+        <section
+            id="authentication-section"
+            class="section"
+        >
+            <h2>Учётная запись</h2>
+
+            <p class="section-description">
+                Зарегистрируйтесь или войдите, чтобы проверить
+                работу JWT-аутентификации.
+            </p>
+
+            <div
+                id="auth-anonymous"
+                class="auth-layout"
+            >
+                <div class="auth-panel">
+                    <h3>Регистрация</h3>
+
+                    <form
+                        id="register-form"
+                        class="auth-form"
+                    >
+                        <input
+                            id="register-username"
+                            type="text"
+                            minlength="3"
+                            maxlength="100"
+                            autocomplete="username"
+                            placeholder="Имя пользователя"
+                            required
+                        >
+
+                        <input
+                            id="register-password"
+                            type="password"
+                            minlength="8"
+                            autocomplete="new-password"
+                            placeholder="Пароль"
+                            required
+                        >
+
+                        <button type="submit">
+                            Зарегистрироваться
+                        </button>
+                    </form>
+                </div>
+
+                <div class="auth-panel">
+                    <h3>Вход</h3>
+
+                    <form
+                        id="login-form"
+                        class="auth-form"
+                    >
+                        <input
+                            id="login-username"
+                            type="text"
+                            autocomplete="username"
+                            placeholder="Имя пользователя"
+                            required
+                        >
+
+                        <input
+                            id="login-password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Пароль"
+                            required
+                        >
+
+                        <button type="submit">
+                            Войти
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div
+                id="auth-user"
+                class="auth-user-panel"
+                hidden
+            >
+                <div>
+                    Вы вошли как:
+                    <span
+                        id="current-username"
+                        class="auth-user-name"
+                    ></span>
+                </div>
+
+                <button
+                    id="logout-button"
+                    type="button"
+                    class="secondary-button"
+                >
+                    Выйти
+                </button>
+            </div>
+
+            <div
+                id="auth-message"
+                class="message"
+            ></div>
+        </section>
 
         <!-- Добавление участника -->
 
@@ -829,6 +990,325 @@
                 return null;
             }
         }
+
+        const AUTH_TOKEN_KEY =
+            "conference_access_token";
+
+
+        function getAccessToken() {
+            return localStorage.getItem(
+                AUTH_TOKEN_KEY
+            );
+        }
+
+
+        function showAnonymousUser() {
+            document
+                .getElementById(
+                    "auth-anonymous"
+                )
+                .hidden = false;
+
+            document
+                .getElementById(
+                    "auth-user"
+                )
+                .hidden = true;
+
+            document
+                .getElementById(
+                    "current-username"
+                )
+                .textContent = "";
+        }
+
+
+        function showAuthenticatedUser(user) {
+            document
+                .getElementById(
+                    "auth-anonymous"
+                )
+                .hidden = true;
+
+            document
+                .getElementById(
+                    "auth-user"
+                )
+                .hidden = false;
+
+            document
+                .getElementById(
+                    "current-username"
+                )
+                .textContent = user.username;
+        }
+
+
+        async function loadCurrentUser() {
+            const token = getAccessToken();
+
+            if (!token) {
+                showAnonymousUser();
+
+                return;
+            }
+
+            try {
+                const response =
+                    await fetch(
+                        "/auth/me",
+                        {
+                            headers: {
+                                "Authorization":
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                const data =
+                    await readResponse(response);
+
+                if (!response.ok) {
+                    localStorage.removeItem(
+                        AUTH_TOKEN_KEY
+                    );
+
+                    showAnonymousUser();
+
+                    throw data;
+                }
+
+                showAuthenticatedUser(data);
+
+            } catch (error) {
+                localStorage.removeItem(
+                    AUTH_TOKEN_KEY
+                );
+
+                showAnonymousUser();
+
+                showMessage(
+                    "auth-message",
+                    "info",
+                    "Сеанс авторизации завершён. " +
+                    "Войдите снова."
+                );
+            }
+        }
+
+
+        document
+            .getElementById(
+                "register-form"
+            )
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    clearMessage(
+                        "auth-message"
+                    );
+
+                    const form =
+                        event.currentTarget;
+
+                    const data = {
+                        username:
+                            document
+                                .getElementById(
+                                    "register-username"
+                                )
+                                .value
+                                .trim(),
+
+                        password:
+                            document
+                                .getElementById(
+                                    "register-password"
+                                )
+                                .value
+                    };
+
+                    try {
+                        const response =
+                            await fetch(
+                                "/auth/register",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(data)
+                                }
+                            );
+
+                        const result =
+                            await readResponse(
+                                response
+                            );
+
+                        if (!response.ok) {
+                            throw result;
+                        }
+
+                        showMessage(
+                            "auth-message",
+                            "success",
+                            "Пользователь успешно зарегистрирован. " +
+                            "Теперь выполните вход."
+                        );
+
+                        document
+                            .getElementById(
+                                "login-username"
+                            )
+                            .value =
+                                result.username;
+
+                        form.reset();
+
+                    } catch (error) {
+                        showMessage(
+                            "auth-message",
+                            "error",
+                            "Не удалось зарегистрироваться. " +
+                            extractErrorMessage(
+                                error,
+                                "Проверьте введённые данные."
+                            )
+                        );
+                    }
+                }
+            );
+
+
+        document
+            .getElementById(
+                "login-form"
+            )
+            .addEventListener(
+                "submit",
+                async event => {
+                    event.preventDefault();
+
+                    const form =
+                        event.currentTarget;
+
+                    clearMessage(
+                        "auth-message"
+                    );
+
+
+
+                    const formData =
+                        new URLSearchParams();
+
+                    formData.append(
+                        "username",
+                        document
+                            .getElementById(
+                                "login-username"
+                            )
+                            .value
+                            .trim()
+                    );
+
+                    formData.append(
+                        "password",
+                        document
+                            .getElementById(
+                                "login-password"
+                            )
+                            .value
+                    );
+
+                    try {
+                        const response =
+                            await fetch(
+                                "/auth/login",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/x-www-form-urlencoded"
+                                    },
+
+                                    body:
+                                        formData.toString()
+                                }
+                            );
+
+                        const result =
+                            await readResponse(
+                                response
+                            );
+
+                        if (!response.ok) {
+                            throw result;
+                        }
+
+                        localStorage.setItem(
+                            AUTH_TOKEN_KEY,
+                            result.access_token
+                        );
+
+                        await loadCurrentUser();
+
+                        showMessage(
+                            "auth-message",
+                            "success",
+                            "Вход выполнен успешно."
+                        );
+
+                        form.reset();
+
+                    } catch (error) {
+                        localStorage.removeItem(
+                            AUTH_TOKEN_KEY
+                        );
+
+                        showAnonymousUser();
+
+                        showMessage(
+                            "auth-message",
+                            "error",
+                            "Не удалось выполнить вход. " +
+                            extractErrorMessage(
+                                error,
+                                "Проверьте имя пользователя и пароль."
+                            )
+                        );
+                    }
+                }
+            );
+
+
+        document
+            .getElementById(
+                "logout-button"
+            )
+            .addEventListener(
+                "click",
+                () => {
+                    localStorage.removeItem(
+                        AUTH_TOKEN_KEY
+                    );
+
+                    showAnonymousUser();
+
+                    showMessage(
+                        "auth-message",
+                        "info",
+                        "Вы вышли из учётной записи."
+                    );
+                }
+            );
 
 
         async function loadParticipants() {
@@ -1415,6 +1895,7 @@
         }
 
 
+        loadCurrentUser();
         loadParticipants();
     </script>
 </body>
