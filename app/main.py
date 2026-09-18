@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.routers import (
     applications,
+    auth,
     hotel_requests,
     invitations,
     participants,
@@ -23,6 +24,11 @@ app = FastAPI(
 def health():
     return {"status": "ok"}
 
+app.include_router(
+    auth.router,
+    prefix="/auth",
+    tags=["Authentication"],
+)
 
 app.include_router(
     participants.router,

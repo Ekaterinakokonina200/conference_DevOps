@@ -4,6 +4,7 @@ from app.models.invitation import Invitation
 from app.models.participant import Participant
 from app.models.payment import Payment
 from app.models.thesis import Thesis
+from app.models.user import User
 
 __all__ = [
     "Application",
@@ -12,4 +13,5 @@ __all__ = [
     "Participant",
     "Payment",
     "Thesis",
+    "User",
 ]
