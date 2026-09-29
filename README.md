@@ -195,6 +195,10 @@ alembic heads
 | [Правила внесения изменений](docs/contribution-rules.md) | Git-процесс, правила коммитов, Pull Request и приёмки       |
 | [Ручное тестирование](docs/manual-testing.md)            | Последовательность ручной проверки приложения               |
 | [Разрешение merge conflict](docs/merge-conflict.md)      | Описание создания и ручного разрешения конфликта Git        |
+| [Сеть и SSH](docs/deployment-network-ssh.md)             | Адреса, администраторы, SSH-ключи, запрет root              |
+| [Сервер БД](docs/deployment-database.md)                 | PostgreSQL, минимальные права, firewall                     |
+| [Приложение и systemd](docs/deployment-app.md)           | Развёртывание, настройки вне кода, служба                   |
+| [Проверка на защите](docs/deployment-checklist.md)       | Чек-лист проверок ЛР №2                                     |
 
 Все документы отображаются непосредственно на GitHub в режиме **Preview**. Файл со схемой данных содержит визуальную ER-диаграмму, которая строится средствами Mermaid.
 
