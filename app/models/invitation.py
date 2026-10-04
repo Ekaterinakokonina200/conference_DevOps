@@ -1,10 +1,16 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
 
 from app.database import Base
 
 
 class Invitation(Base):
     __tablename__ = "invitations"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('created', 'sent', 'accepted', 'declined')",
+            name="ck_invitations_status",
+        ),
+    )
 
     id = Column(
         Integer,
@@ -14,8 +20,9 @@ class Invitation(Base):
 
     participant_id = Column(
         Integer,
-        ForeignKey("participants.id"),
+        ForeignKey("participants.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     status = Column(

@@ -1,10 +1,16 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, Column, ForeignKey, Integer, String
 
 from app.database import Base
 
 
 class Thesis(Base):
     __tablename__ = "theses"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('submitted', 'approved', 'rejected')",
+            name="ck_theses_status",
+        ),
+    )
 
     id = Column(
         Integer,
@@ -14,8 +20,9 @@ class Thesis(Base):
 
     participant_id = Column(
         Integer,
-        ForeignKey("participants.id"),
+        ForeignKey("participants.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     title = Column(

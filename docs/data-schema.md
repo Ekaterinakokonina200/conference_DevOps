@@ -353,11 +353,22 @@ hotel_requests.participant_id → participants.id
 2. Электронная почта участника обязательна и уникальна.
 3. Каждая дочерняя запись содержит обязательный внешний ключ `participant_id`.
 4. Внешние ключи ссылаются на `participants.id`.
-5. В моделях не указано каскадное удаление `ON DELETE CASCADE`.
-6. Перед удалением участника необходимо сначала удалить связанные дочерние записи.
+5. Внешние ключи `participant_id` объявлены с `ON DELETE CASCADE` (миграция
+   `e7b9c3d5f6a1`): при удалении участника его заявки, приглашения, оплаты,
+   тезисы и запросы на гостиницу удаляются базой данных автоматически.
+6. По каждому `participant_id` построен индекс `ix_<таблица>_participant_id`.
 7. Даты создания участника и заявки автоматически устанавливаются сервером базы данных.
 8. Статусы новых записей получают начальные значения, определённые моделями.
 9. Поле `users.username` является обязательным и уникальным.
+10. Допустимые значения проверяет сама база данных (миграция `d4f8a1c2b3e5`):
+
+| Ограничение | Таблица | Условие |
+|---|---|---|
+| `ck_applications_status` | `applications` | `status IN ('pending', 'confirmed', 'rejected')` |
+| `ck_payments_status` | `payments` | `status IN ('pending', 'paid', 'cancelled')` |
+| `ck_payments_amount_positive` | `payments` | `amount > 0` |
+| `ck_invitations_status` | `invitations` | `status IN ('created', 'sent', 'accepted', 'declined')` |
+| `ck_theses_status` | `theses` | `status IN ('submitted', 'approved', 'rejected')` |
 10. Поле `users.password_hash` является обязательным.
 11. Открытый пароль пользователя не хранится в базе данных.
 12. Сущность `User` не имеет внешних ключей к предметным сущностям.

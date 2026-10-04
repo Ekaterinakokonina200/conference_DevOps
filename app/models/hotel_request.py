@@ -14,8 +14,9 @@ class HotelRequest(Base):
 
     participant_id = Column(
         Integer,
-        ForeignKey("participants.id"),
+        ForeignKey("participants.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     required = Column(
