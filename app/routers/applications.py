@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -12,6 +13,7 @@ from app.schemas.application import (
     ApplicationResponse,
     ApplicationUpdate,
 )
+from app.services.rules import BusinessRuleError, ensure_application_status_allowed
 
 router = APIRouter()
 
@@ -97,21 +99,19 @@ def update_application(
             detail="Application not found",
         )
 
-    if application_data.status == "confirmed":
-        payment = (
-            db.query(Payment)
-            .filter(
-                Payment.participant_id == application.participant_id,
-                Payment.status == "paid",
-            )
-            .first()
+    payment_statuses = db.scalars(
+        select(Payment.status).where(
+            Payment.participant_id == application.participant_id
         )
+    ).all()
 
-        if not payment:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Registration fee must be paid before confirmation",
-            )
+    try:
+        ensure_application_status_allowed(application_data.status, payment_statuses)
+    except BusinessRuleError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=error.detail,
+        ) from None
 
     application.status = application_data.status
 
