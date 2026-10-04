@@ -14,7 +14,7 @@ class User(Base):
     )
 
     username = Column(
-        String(50),
+        String(100),
         unique=True,
         nullable=False,
         index=True,
@@ -32,7 +32,7 @@ class User(Base):
     )
 
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
     )
