@@ -12,6 +12,7 @@ from app.schemas.invitation import (
     InvitationResponse,
     InvitationUpdate,
 )
+from app.services.rules import invitation_sent_at
 
 router = APIRouter()
 
@@ -98,9 +99,9 @@ def update_invitation(
         )
 
     invitation.status = invitation_data.status
-
-    if invitation_data.status == "sent":
-        invitation.sent_at = datetime.now(UTC)
+    invitation.sent_at = invitation_sent_at(
+        invitation_data.status, invitation.sent_at, datetime.now(UTC)
+    )
 
     db.commit()
     db.refresh(invitation)

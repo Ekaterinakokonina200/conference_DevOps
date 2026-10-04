@@ -12,6 +12,7 @@ from app.schemas.payment import (
     PaymentResponse,
     PaymentUpdate,
 )
+from app.services.rules import payment_date_for
 
 router = APIRouter()
 
@@ -43,10 +44,8 @@ def create_payment(
         participant_id=payment_data.participant_id,
         amount=payment_data.amount,
         status=payment_data.status,
+        payment_date=payment_date_for(payment_data.status, datetime.now(UTC)),
     )
-
-    if payment_data.status == "paid":
-        payment.payment_date = datetime.now(UTC)
 
     db.add(payment)
     db.commit()
@@ -102,12 +101,7 @@ def update_payment(
         )
 
     payment.status = payment_data.status
-
-    if payment_data.status == "paid":
-        payment.payment_date = datetime.now(UTC)
-
-    if payment_data.status != "paid":
-        payment.payment_date = None
+    payment.payment_date = payment_date_for(payment_data.status, datetime.now(UTC))
 
     db.commit()
     db.refresh(payment)
