@@ -1,0 +1,19 @@
+# Инструменты разработки и проверки. Устанавливаются командой make install.
+-r requirements.txt
+
+# Тесты и отчёты
+pytest==9.1.1
+pytest-cov==7.1.0
+coverage==7.16.2
+httpx==0.28.1
+httpcore==1.0.9
+iniconfig==2.3.0
+packaging==26.3
+pluggy==1.6.0
+Pygments==2.21.0
+
+# Линтер и форматирование
+ruff==0.16.6
+
+# Статический анализ безопасности (SAST)
+bandit==1.9.4
