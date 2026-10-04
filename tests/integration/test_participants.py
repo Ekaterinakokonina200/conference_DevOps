@@ -114,3 +114,15 @@ def test_missing_full_name_returns_422(client):
     response = client.post("/participants/", json={"email": "x@example.com"})
 
     assert response.status_code == 422
+
+
+def test_delete_participant_with_related_records(client, participant):
+    pid = participant["id"]
+    client.post("/applications/", json={"participant_id": pid})
+    client.post("/payments/", json={"participant_id": pid, "amount": 100})
+
+    response = client.delete(f"/participants/{pid}")
+
+    assert response.status_code == 204
+    assert client.get("/applications/").json() == []
+    assert client.get("/payments/").json() == []
