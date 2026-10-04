@@ -1,4 +1,4 @@
-﻿from typing import Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -70,11 +70,7 @@ def get_thesis(
     thesis_id: int,
     db: DbSession,
 ):
-    thesis = (
-        db.query(Thesis)
-        .filter(Thesis.id == thesis_id)
-        .first()
-    )
+    thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
 
     if not thesis:
         raise HTTPException(
@@ -94,11 +90,7 @@ def update_thesis(
     thesis_data: ThesisUpdate,
     db: DbSession,
 ):
-    thesis = (
-        db.query(Thesis)
-        .filter(Thesis.id == thesis_id)
-        .first()
-    )
+    thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
 
     if not thesis:
         raise HTTPException(
@@ -122,11 +114,7 @@ def delete_thesis(
     thesis_id: int,
     db: DbSession,
 ):
-    thesis = (
-        db.query(Thesis)
-        .filter(Thesis.id == thesis_id)
-        .first()
-    )
+    thesis = db.query(Thesis).filter(Thesis.id == thesis_id).first()
 
     if not thesis:
         raise HTTPException(

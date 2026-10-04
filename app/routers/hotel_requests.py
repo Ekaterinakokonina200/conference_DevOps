@@ -1,4 +1,4 @@
-﻿from typing import Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -70,11 +70,7 @@ def get_hotel_request(
     request_id: int,
     db: DbSession,
 ):
-    hotel_request = (
-        db.query(HotelRequest)
-        .filter(HotelRequest.id == request_id)
-        .first()
-    )
+    hotel_request = db.query(HotelRequest).filter(HotelRequest.id == request_id).first()
 
     if not hotel_request:
         raise HTTPException(
@@ -94,11 +90,7 @@ def update_hotel_request(
     request_data: HotelRequestUpdate,
     db: DbSession,
 ):
-    hotel_request = (
-        db.query(HotelRequest)
-        .filter(HotelRequest.id == request_id)
-        .first()
-    )
+    hotel_request = db.query(HotelRequest).filter(HotelRequest.id == request_id).first()
 
     if not hotel_request:
         raise HTTPException(
@@ -124,11 +116,7 @@ def delete_hotel_request(
     request_id: int,
     db: DbSession,
 ):
-    hotel_request = (
-        db.query(HotelRequest)
-        .filter(HotelRequest.id == request_id)
-        .first()
-    )
+    hotel_request = db.query(HotelRequest).filter(HotelRequest.id == request_id).first()
 
     if not hotel_request:
         raise HTTPException(

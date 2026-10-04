@@ -55,7 +55,7 @@ def create_participant(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Participant with this email already exists",
-        )
+        ) from None
 
     db.refresh(participant)
 
@@ -80,11 +80,7 @@ def get_participant(
     participant_id: int,
     db: DbSession,
 ):
-    participant = (
-        db.query(Participant)
-        .filter(Participant.id == participant_id)
-        .first()
-    )
+    participant = db.query(Participant).filter(Participant.id == participant_id).first()
 
     if not participant:
         raise HTTPException(
@@ -104,11 +100,7 @@ def update_participant(
     participant_data: ParticipantUpdate,
     db: DbSession,
 ):
-    participant = (
-        db.query(Participant)
-        .filter(Participant.id == participant_id)
-        .first()
-    )
+    participant = db.query(Participant).filter(Participant.id == participant_id).first()
 
     if not participant:
         raise HTTPException(
@@ -116,9 +108,7 @@ def update_participant(
             detail="Participant not found",
         )
 
-    update_data = participant_data.model_dump(
-        exclude_unset=True
-    )
+    update_data = participant_data.model_dump(exclude_unset=True)
 
     if "email" in update_data:
         existing_participant = (
@@ -147,7 +137,7 @@ def update_participant(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Participant with this email already exists",
-        )
+        ) from None
 
     db.refresh(participant)
 
@@ -162,11 +152,7 @@ def delete_participant(
     participant_id: int,
     db: DbSession,
 ):
-    participant = (
-        db.query(Participant)
-        .filter(Participant.id == participant_id)
-        .first()
-    )
+    participant = db.query(Participant).filter(Participant.id == participant_id).first()
 
     if not participant:
         raise HTTPException(
@@ -176,5 +162,3 @@ def delete_participant(
 
     db.delete(participant)
     db.commit()
-
-  

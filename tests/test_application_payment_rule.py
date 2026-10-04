@@ -53,21 +53,14 @@ def test_cannot_confirm_application_without_paid_payment():
 
         assert confirm_response.status_code == 409
         assert confirm_response.json() == {
-            "detail": (
-                "Registration fee must be paid "
-                "before confirmation"
-            )
+            "detail": ("Registration fee must be paid before confirmation")
         }
 
     finally:
         if application_id is not None:
-            client.delete(
-                f"/applications/{application_id}"
-            )
+            client.delete(f"/applications/{application_id}")
 
-        client.delete(
-            f"/participants/{participant_id}"
-        )
+        client.delete(f"/participants/{participant_id}")
 
 
 def test_can_confirm_application_after_paid_payment():
@@ -116,15 +109,9 @@ def test_can_confirm_application_after_paid_payment():
 
     finally:
         if payment_id is not None:
-            client.delete(
-                f"/payments/{payment_id}"
-            )
+            client.delete(f"/payments/{payment_id}")
 
         if application_id is not None:
-            client.delete(
-                f"/applications/{application_id}"
-            )
+            client.delete(f"/applications/{application_id}")
 
-        client.delete(
-            f"/participants/{participant_id}"
-        )
+        client.delete(f"/participants/{participant_id}")

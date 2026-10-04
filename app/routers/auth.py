@@ -39,11 +39,7 @@ def register_user(
     user_data: UserCreate,
     db: DbSession,
 ):
-    existing_user = (
-        db.query(User)
-        .filter(User.username == user_data.username)
-        .first()
-    )
+    existing_user = db.query(User).filter(User.username == user_data.username).first()
 
     if existing_user:
         raise HTTPException(
@@ -53,9 +49,7 @@ def register_user(
 
     user = User(
         username=user_data.username,
-        password_hash=hash_password(
-            user_data.password
-        ),
+        password_hash=hash_password(user_data.password),
         is_active=True,
     )
 
@@ -69,7 +63,7 @@ def register_user(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User with this username already exists",
-        )
+        ) from None
 
     db.refresh(user)
 
@@ -102,13 +96,12 @@ def login(
             },
         )
 
-    access_token = create_access_token(
-        user.username
-    )
+    access_token = create_access_token(user.username)
 
     return TokenResponse(
         access_token=access_token,
-        token_type="bearer",
+        # Обоснование: "bearer" — тип токена по OAuth2 (RFC 6750), а не пароль.
+        token_type="bearer",  # nosec B106.
     )
 
 

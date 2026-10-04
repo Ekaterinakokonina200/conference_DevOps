@@ -1,4 +1,4 @@
-﻿from typing import Annotated
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -19,24 +19,14 @@ DbSession = Annotated[Session, Depends(get_db)]
 def get_summary(db: DbSession):
     participants = db.query(Participant).count()
 
-    confirmed = (
-        db.query(Application)
-        .filter(Application.status == "confirmed")
-        .count()
-    )
+    confirmed = db.query(Application).filter(Application.status == "confirmed").count()
 
-    payments_received = (
-        db.query(Payment)
-        .filter(Payment.status == "paid")
-        .count()
-    )
+    payments_received = db.query(Payment).filter(Payment.status == "paid").count()
 
     theses_submitted = db.query(Thesis).count()
 
     hotel_required = (
-        db.query(HotelRequest)
-        .filter(HotelRequest.required.is_(True))
-        .count()
+        db.query(HotelRequest).filter(HotelRequest.required.is_(True)).count()
     )
 
     return {
