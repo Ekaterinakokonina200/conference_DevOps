@@ -73,11 +73,7 @@ def get_payment(
     payment_id: int,
     db: DbSession,
 ):
-    payment = (
-        db.query(Payment)
-        .filter(Payment.id == payment_id)
-        .first()
-    )
+    payment = db.query(Payment).filter(Payment.id == payment_id).first()
 
     if not payment:
         raise HTTPException(
@@ -97,11 +93,7 @@ def update_payment(
     payment_data: PaymentUpdate,
     db: DbSession,
 ):
-    payment = (
-        db.query(Payment)
-        .filter(Payment.id == payment_id)
-        .first()
-    )
+    payment = db.query(Payment).filter(Payment.id == payment_id).first()
 
     if not payment:
         raise HTTPException(
@@ -122,6 +114,7 @@ def update_payment(
 
     return payment
 
+
 @router.delete(
     "/{payment_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -130,11 +123,7 @@ def delete_payment(
     payment_id: int,
     db: DbSession,
 ):
-    payment = (
-        db.query(Payment)
-        .filter(Payment.id == payment_id)
-        .first()
-    )
+    payment = db.query(Payment).filter(Payment.id == payment_id).first()
 
     if not payment:
         raise HTTPException(

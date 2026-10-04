@@ -31,13 +31,9 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
 
 password_hash = PasswordHash.recommended()
 
-DUMMY_HASH = password_hash.hash(
-    "dummy-password-for-timing-protection"
-)
+DUMMY_HASH = password_hash.hash("dummy-password-for-timing-protection")
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/auth/login"
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 DbSession = Annotated[Session, Depends(get_db)]
 
@@ -57,9 +53,7 @@ def verify_password(
 
 
 def create_access_token(username: str) -> str:
-    expires_at = datetime.now(UTC) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-    )
+    expires_at = datetime.now(UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload = {
         "sub": username,
@@ -78,11 +72,7 @@ def authenticate_user(
     username: str,
     password: str,
 ) -> User | None:
-    user = (
-        db.query(User)
-        .filter(User.username == username)
-        .first()
-    )
+    user = db.query(User).filter(User.username == username).first()
 
     if user is None:
         verify_password(password, DUMMY_HASH)
@@ -125,13 +115,9 @@ def get_current_user(
             raise credentials_exception
 
     except InvalidTokenError:
-        raise credentials_exception
+        raise credentials_exception from None
 
-    user = (
-        db.query(User)
-        .filter(User.username == username)
-        .first()
-    )
+    user = db.query(User).filter(User.username == username).first()
 
     if user is None:
         raise credentials_exception

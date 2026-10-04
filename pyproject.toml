@@ -1,0 +1,42 @@
+# Настройки инструментов проверки. Пакетом проект не является.
+# Любое ослабление настроек (снижение порога, новое исключение) допускается
+# только с записью в docs/quality-rules.md — это проверяет make rules-check.
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+extend-exclude = ["reports", "backups"]
+
+[tool.ruff.lint]
+# E, W — стиль PEP 8; F — ошибки (неиспользуемые импорты, неизвестные имена);
+# I — порядок импортов; B — типичные ошибки (bugbear); UP — устаревший синтаксис.
+select = ["E", "W", "F", "I", "B", "UP"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers --strict-config"
+xfail_strict = true
+markers = [
+    "unit: модульные тесты без базы данных",
+    "integration: интеграционные тесты с тестовой базой PostgreSQL",
+    "migrations: проверка миграций на чистой и заполненной базе",
+]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 65
+show_missing = true
+skip_covered = true
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "alembic"]
+skips = []

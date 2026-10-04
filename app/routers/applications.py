@@ -18,9 +18,6 @@ router = APIRouter()
 DbSession = Annotated[Session, Depends(get_db)]
 
 
-
-
-
 @router.post(
     "/",
     response_model=ApplicationResponse,
@@ -51,13 +48,7 @@ def create_application(
     db.commit()
     db.refresh(application)
 
-
     return application
-
-
-
-
-
 
 
 @router.get(
@@ -70,9 +61,6 @@ def get_applications(
     return db.query(Application).all()
 
 
-
-
-
 @router.get(
     "/{application_id}",
     response_model=ApplicationResponse,
@@ -81,11 +69,7 @@ def get_application(
     application_id: int,
     db: DbSession,
 ):
-    application = (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
-    )
+    application = db.query(Application).filter(Application.id == application_id).first()
 
     if not application:
         raise HTTPException(
@@ -94,9 +78,6 @@ def get_application(
         )
 
     return application
-
-
-
 
 
 @router.put(
@@ -108,11 +89,7 @@ def update_application(
     application_data: ApplicationUpdate,
     db: DbSession,
 ):
-    application = (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
-    )
+    application = db.query(Application).filter(Application.id == application_id).first()
 
     if not application:
         raise HTTPException(
@@ -144,7 +121,6 @@ def update_application(
     return application
 
 
-
 @router.delete(
     "/{application_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -153,11 +129,7 @@ def delete_application(
     application_id: int,
     db: DbSession,
 ):
-    application = (
-        db.query(Application)
-        .filter(Application.id == application_id)
-        .first()
-    )
+    application = db.query(Application).filter(Application.id == application_id).first()
 
     if not application:
         raise HTTPException(

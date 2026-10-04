@@ -19,11 +19,7 @@ def delete_user(username: str) -> None:
     db = SessionLocal()
 
     try:
-        user = (
-            db.query(User)
-            .filter(User.username == username)
-            .first()
-        )
+        user = db.query(User).filter(User.username == username).first()
 
         if user is not None:
             db.delete(user)
@@ -71,9 +67,7 @@ def test_duplicate_username():
         assert first_response.status_code == 201
         assert second_response.status_code == 409
         assert second_response.json() == {
-            "detail": (
-                "User with this username already exists"
-            )
+            "detail": ("User with this username already exists")
         }
     finally:
         delete_user(username)
@@ -115,12 +109,7 @@ def test_login_and_get_current_user():
 
         me_response = client.get(
             "/auth/me",
-            headers={
-                "Authorization": (
-                    "Bearer "
-                    f"{login_data['access_token']}"
-                )
-            },
+            headers={"Authorization": (f"Bearer {login_data['access_token']}")},
         )
 
         assert me_response.status_code == 200
@@ -152,25 +141,17 @@ def test_login_with_wrong_password():
         )
 
         assert login_response.status_code == 401
-        assert login_response.json() == {
-            "detail": "Incorrect username or password"
-        }
+        assert login_response.json() == {"detail": "Incorrect username or password"}
     finally:
         delete_user(username)
 
 
 def test_get_current_user_requires_valid_token():
-    without_token_response = client.get(
-        "/auth/me"
-    )
+    without_token_response = client.get("/auth/me")
 
     invalid_token_response = client.get(
         "/auth/me",
-        headers={
-            "Authorization": (
-                "Bearer definitely.invalid.token"
-            )
-        },
+        headers={"Authorization": ("Bearer definitely.invalid.token")},
     )
 
     assert without_token_response.status_code == 401

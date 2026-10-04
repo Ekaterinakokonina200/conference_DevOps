@@ -1,4 +1,4 @@
-﻿from datetime import date
+from datetime import date
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -13,14 +13,10 @@ class HotelRequestCreate(BaseModel):
     def validate_dates(self):
         if self.required:
             if self.check_in is None or self.check_out is None:
-                raise ValueError(
-                    "Check-in and check-out dates are required"
-                )
+                raise ValueError("Check-in and check-out dates are required")
 
             if self.check_out <= self.check_in:
-                raise ValueError(
-                    "Check-out date must be after check-in date"
-                )
+                raise ValueError("Check-out date must be after check-in date")
 
         return self
 
@@ -34,14 +30,10 @@ class HotelRequestUpdate(BaseModel):
     def validate_dates(self):
         if self.required:
             if self.check_in is None or self.check_out is None:
-                raise ValueError(
-                    "Check-in and check-out dates are required"
-                )
+                raise ValueError("Check-in and check-out dates are required")
 
             if self.check_out <= self.check_in:
-                raise ValueError(
-                    "Check-out date must be after check-in date"
-                )
+                raise ValueError("Check-out date must be after check-in date")
 
         return self
 

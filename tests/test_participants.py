@@ -40,9 +40,7 @@ def test_get_nonexistent_participant():
     response = client.get("/participants/999999")
 
     assert response.status_code == 404
-    assert response.json() == {
-        "detail": "Participant not found"
-    }
+    assert response.json() == {"detail": "Participant not found"}
 
 
 def test_duplicate_email():
@@ -98,16 +96,11 @@ def test_update_participant():
 
     update_response = client.put(
         f"/participants/{participant_id}",
-        json={
-            "organization": "New Organization"
-        },
+        json={"organization": "New Organization"},
     )
 
     assert update_response.status_code == 200
-    assert (
-        update_response.json()["organization"]
-        == "New Organization"
-    )
+    assert update_response.json()["organization"] == "New Organization"
 
     client.delete(f"/participants/{participant_id}")
 
@@ -127,14 +120,10 @@ def test_delete_participant():
 
     participant_id = create_response.json()["id"]
 
-    delete_response = client.delete(
-        f"/participants/{participant_id}"
-    )
+    delete_response = client.delete(f"/participants/{participant_id}")
 
     assert delete_response.status_code == 204
 
-    get_response = client.get(
-        f"/participants/{participant_id}"
-    )
+    get_response = client.get(f"/participants/{participant_id}")
 
     assert get_response.status_code == 404

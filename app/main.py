@@ -24,6 +24,7 @@ app = FastAPI(
 def health():
     return {"status": "ok"}
 
+
 app.include_router(
     auth.router,
     prefix="/auth",
@@ -77,6 +78,7 @@ app.mount(
     StaticFiles(directory="app/static"),
     name="static",
 )
+
 
 @app.get("/", include_in_schema=False)
 def web_interface():

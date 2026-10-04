@@ -1,12 +1,13 @@
 # Environment variables
 .env
+.env.test
 
 # Virtual environment
 .venv/
 venv/
 
 # Python cache
-pycache/
+__pycache__/
 *.py[cod]
 *$py.class
 
@@ -41,3 +42,8 @@ build/
 dist/
 
 *.egg-info/
+
+# Отчёты проверок (make verify) и резервные копии БД
+reports/
+backups/
+.mutation_backup/

@@ -69,11 +69,7 @@ def get_invitation(
     invitation_id: int,
     db: DbSession,
 ):
-    invitation = (
-        db.query(Invitation)
-        .filter(Invitation.id == invitation_id)
-        .first()
-    )
+    invitation = db.query(Invitation).filter(Invitation.id == invitation_id).first()
 
     if not invitation:
         raise HTTPException(
@@ -93,11 +89,7 @@ def update_invitation(
     invitation_data: InvitationUpdate,
     db: DbSession,
 ):
-    invitation = (
-        db.query(Invitation)
-        .filter(Invitation.id == invitation_id)
-        .first()
-    )
+    invitation = db.query(Invitation).filter(Invitation.id == invitation_id).first()
 
     if not invitation:
         raise HTTPException(
@@ -124,11 +116,7 @@ def delete_invitation(
     invitation_id: int,
     db: DbSession,
 ):
-    invitation = (
-        db.query(Invitation)
-        .filter(Invitation.id == invitation_id)
-        .first()
-    )
+    invitation = db.query(Invitation).filter(Invitation.id == invitation_id).first()
 
     if not invitation:
         raise HTTPException(
