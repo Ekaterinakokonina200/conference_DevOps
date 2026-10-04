@@ -1,0 +1,34 @@
+# Критические файлы приёмки: файлы, которые определяют, КАК проверяется
+# изменение. Если PR меняет такой файл, GitHub автоматически запрашивает
+# ревью у его владельцев, а при включённой защите ветки main
+# (Require review from Code Owners) PR нельзя слить без их Approve.
+# У каждого файла два владельца, чтобы автор не был единственным проверяющим.
+
+# Проверочный контур и правила качества
+/Makefile                      @Ekaterinakokonina200 @Maryleksa
+/pyproject.toml                @Ekaterinakokonina200 @Maryleksa
+/requirements.txt              @Ekaterinakokonina200 @Maryleksa
+/requirements-dev.txt          @Ekaterinakokonina200 @Maryleksa
+/tools/check_rules.py          @Ekaterinakokonina200 @Maryleksa
+/tools/critical_changes.py     @Ekaterinakokonina200 @Maryleksa
+/tools/setup_project.py        @Ekaterinakokonina200 @Maryleksa
+/tools/pgtools.py              @Ekaterinakokonina200 @Maryleksa
+/docs/quality-rules.md         @Ekaterinakokonina200 @Maryleksa
+/.github/                      @Ekaterinakokonina200 @Maryleksa
+
+# Тестовая конфигурация и мутационная проверка
+/tests/conftest.py             @Maryleksa @sugarkisss
+/tests/integration/conftest.py @Maryleksa @sugarkisss
+/tools/mutation_check.py       @sugarkisss @Ekaterinakokonina200
+
+# Схема БД, проверка миграций, резервное копирование
+/alembic/                      @Maryleksa @Ekaterinakokonina200
+/alembic.ini                   @Maryleksa @Ekaterinakokonina200
+/tests/migrations/             @Maryleksa @Ekaterinakokonina200
+/tools/db_backup.py            @Maryleksa @sugarkisss
+/tools/db_restore.py           @Maryleksa @sugarkisss
+/tools/backup_check.py         @Maryleksa @sugarkisss
+
+# Развёртывание (ЛР №2)
+/deploy/                       @sugarkisss @Ekaterinakokonina200
+/scripts/                      @Ekaterinakokonina200 @Maryleksa
