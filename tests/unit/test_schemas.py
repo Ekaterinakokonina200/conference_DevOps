@@ -85,3 +85,18 @@ def test_hotel_request_not_required_without_dates_is_accepted():
     request = HotelRequestCreate(participant_id=1, required=False)
 
     assert request.check_in is None
+
+
+def test_rejected_application_needs_reason():
+    with pytest.raises(ValidationError):
+        ApplicationUpdate(status="rejected")
+
+
+@pytest.mark.parametrize(("length", "valid"), [(500, True), (501, False)])
+def test_rejection_reason_length_boundary(length, valid):
+    if valid:
+        update = ApplicationUpdate(status="rejected", rejection_reason="x" * length)
+        assert len(update.rejection_reason) == length
+    else:
+        with pytest.raises(ValidationError):
+            ApplicationUpdate(status="rejected", rejection_reason="x" * length)

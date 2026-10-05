@@ -119,6 +119,20 @@ def test_upgrade_filled_database_keeps_data(config, engine):
     assert application_statuses == ["confirmed", "pending"]
 
 
+def test_old_rejected_applications_get_default_reason(config, engine):
+    command.upgrade(config, V010_HEAD)
+    with engine.begin() as connection:
+        fill_database(connection, "paid", "rejected")
+
+    command.upgrade(config, "head")
+
+    with engine.connect() as connection:
+        reason = connection.scalar(
+            text("SELECT rejection_reason FROM applications WHERE status = 'rejected'")
+        )
+    assert reason == "Причина не указана (заявка отклонена до версии 0.3.0)"
+
+
 def test_upgrade_refuses_to_hide_bad_payments(config, engine):
     command.upgrade(config, V010_HEAD)
     with engine.begin() as connection:
@@ -145,6 +159,7 @@ def test_constraints_reject_invalid_data(config, engine):
         "INSERT INTO payments (participant_id, amount, status) VALUES (1, 0, 'paid')",
         "INSERT INTO payments (participant_id, amount, status) VALUES (1, 10, 'done')",
         "INSERT INTO applications (participant_id, status) VALUES (1, 'approved')",
+        "INSERT INTO applications (participant_id, status) VALUES (1, 'rejected')",
     ]
     for statement in invalid_rows:
         with pytest.raises(IntegrityError), engine.begin() as connection:

@@ -80,15 +80,46 @@ def test_can_confirm_after_paid_payment(client, participant):
     assert response.json()["status"] == "confirmed"
 
 
-def test_reject_application_without_payment(client, participant):
+def test_reject_application_with_reason(client, participant):
+    application = create_application(client, participant["id"])
+
+    response = client.put(
+        f"/applications/{application['id']}",
+        json={"status": "rejected", "rejection_reason": "Тема не соответствует"},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "rejected"
+    assert response.json()["rejection_reason"] == "Тема не соответствует"
+
+
+def test_reject_without_reason_returns_422(client, participant):
     application = create_application(client, participant["id"])
 
     response = client.put(
         f"/applications/{application['id']}", json={"status": "rejected"}
     )
 
-    assert response.status_code == 200
-    assert response.json()["status"] == "rejected"
+    assert response.status_code == 422
+    assert client.get(f"/applications/{application['id']}").json()["status"] == (
+        "pending"
+    )
+
+
+def test_confirming_rejected_application_clears_reason(client, participant):
+    application = create_application(client, participant["id"])
+    client.put(
+        f"/applications/{application['id']}",
+        json={"status": "rejected", "rejection_reason": "Нет оплаты"},
+    )
+    pay(client, participant["id"])
+
+    response = client.put(
+        f"/applications/{application['id']}", json={"status": "confirmed"}
+    )
+
+    assert response.json()["status"] == "confirmed"
+    assert response.json()["rejection_reason"] is None
 
 
 def test_unknown_status_returns_422(client, participant):
@@ -113,7 +144,7 @@ def test_list_get_and_delete_application(client, participant):
 def test_missing_application_returns_404(client):
     assert client.get("/applications/999999").status_code == 404
     assert (
-        client.put("/applications/999999", json={"status": "rejected"}).status_code
+        client.put("/applications/999999", json={"status": "pending"}).status_code
         == 404
     )
     assert client.delete("/applications/999999").status_code == 404

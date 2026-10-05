@@ -110,3 +110,21 @@ def test_check_out_before_check_in_is_rejected():
 
 def test_one_night_stay_is_allowed():
     rules.validate_stay_dates(True, date(2026, 10, 1), date(2026, 10, 2))
+
+
+# --- Новая функция: причина отклонения заявки ---------------------------------
+
+
+@pytest.mark.parametrize("reason", [None, "", "   "])
+def test_rejection_requires_reason(reason):
+    with pytest.raises(ValueError, match="^Rejection reason is required$"):
+        rules.rejection_reason_for("rejected", reason)
+
+
+def test_rejection_reason_is_trimmed():
+    assert rules.rejection_reason_for("rejected", "  Нет мест  ") == "Нет мест"
+
+
+@pytest.mark.parametrize("status", ["pending", "confirmed"])
+def test_reason_is_cleared_for_other_statuses(status):
+    assert rules.rejection_reason_for(status, "Старая причина") is None
