@@ -448,6 +448,19 @@ PUT /applications/{application_id}
 - `confirmed`;
 - `rejected`.
 
+При статусе `rejected` обязательно поле `rejection_reason`:
+
+```json
+{
+  "status": "rejected",
+  "rejection_reason": "Тема доклада не соответствует конференции"
+}
+```
+
+Без причины возвращается `422 Unprocessable Entity`. При других статусах
+`rejection_reason` в ответе равно `null`. Поле `rejection_reason`
+возвращается во всех ответах с Application.
+
 Успешный ответ:
 
 ```text
