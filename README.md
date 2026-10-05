@@ -2,7 +2,7 @@
 
 Система управления участниками научной конференции.
 
-Проект разработан в рамках лабораторной работы №1 «Сквозной проект и Git-процесс».
+Проект разработан в рамках лабораторных работ №1 «Сквозной проект и Git-процесс», №2 «Развёртывание приложения в Linux-среде» и №3 «Автоматические проверки, миграции и резервное копирование».
 
 ## Возможности
 
@@ -76,71 +76,32 @@ Participant
 
 ## Установка
 
-### 1. Клонировать репозиторий
+Нужны: Git (с Git Bash), Python 3.12, PostgreSQL (локально), GNU make.
+Команды выполняются в Git Bash (в VS Code: терминал Git Bash).
 
-```powershell
+```bash
 git clone https://github.com/Ekaterinakokonina200/conference_DevOps.git
 cd conference_DevOps
+make setup
 ```
 
-### 2. Создать виртуальное окружение
+`make setup` — единый сценарий первоначальной настройки (`tools/setup_project.py`):
 
-```powershell
-python -m venv .venv
-```
+1. создаёт виртуальное окружение `.venv` и ставит зафиксированные версии
+   зависимостей из `requirements-dev.txt`;
+2. создаёт `.env` и `.env.test` из шаблонов и генерирует `JWT_SECRET_KEY`;
+3. останавливается и просит вписать пароль PostgreSQL, если его нет;
+4. проверяет наличие `psql`, `pg_dump`, `pg_restore`;
+5. создаёт базы `conference` и `conference_test`;
+6. применяет миграции к рабочей базе.
 
-Активировать:
+После того как пароль вписан, `make setup` запускают ещё раз. Файлы `.env`
+и `.env.test` в Git не добавляются.
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
+Запуск приложения:
 
-### 3. Установить зависимости
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-### 4. Создать локальную конфигурацию
-
-```powershell
-Copy-Item .env.example .env
-notepad .env
-```
-
-Пример:
-
-```env
-DATABASE_URL=postgresql://postgres:LOCAL_PASSWORD@localhost:5432/conference
-```
-
-Вместо `LOCAL_PASSWORD` необходимо указать локальный пароль PostgreSQL.
-
-Файл `.env` нельзя добавлять в Git.
-
-### 5. Применить миграции
-
-```powershell
-alembic upgrade head
-```
-
-Проверить:
-
-```powershell
-alembic current
-alembic heads
-```
-
-Последняя миграция:
-
-```text
-c027a5eb74d0
-```
-
-### 6. Запустить приложение
-
-```powershell
-python -m uvicorn app.main:app --reload
+```bash
+make run
 ```
 
 ## Адреса приложения
@@ -168,20 +129,32 @@ python -m uvicorn app.main:app --reload
 ```http
 Authorization: Bearer <JWT>
 
-## Проверки
+## Проверки (локальный проверочный контур)
 
-Перед созданием Pull Request необходимо выполнить:
+Любое изменение попадает в `main` только после успешного `make verify`
+(правила — в [docs/quality-rules.md](docs/quality-rules.md)).
 
-```powershell
-ruff check .
-python -m pytest -v
-git diff --check
-alembic current
-alembic heads
+```bash
+make verify
 ```
-Ожидается успешное выполнение 16 тестов.
 
-Результат `collected 0 items` не считается успешным.
+| Шаг | Команда | Что проверяет |
+|---|---|---|
+| 1 | `make format-check` | код отформатирован по единому стилю (`ruff format --check`) |
+| 2 | `make lint` | линтер `ruff check`: ошибки, стиль PEP 8, порядок импортов, типичные ошибки |
+| 3 | `make sast` | статический анализ безопасности `bandit`, отчёт `reports/bandit.html` |
+| 4 | `make rules-check` | нет пропущенных тестов, порогов ниже минимума, исключений без обоснования, незафиксированных версий |
+| 5 | `make test` | unit- и интеграционные тесты на тестовой базе, покрытие не ниже порога, отчёты `reports/` |
+| 6 | `make migrations-check` | миграции на чистой и заполненной базе, откат, совпадение моделей и схемы |
+| 7 | `make backup-check` | резервная копия → порча данных → восстановление → сравнение |
+| 8 | `make mutation` | мутационная проверка: тесты замечают изменение любого условия основной логики |
+
+Команда `make quality` запускает шаги 1–3 (форматирование и статический
+анализ). Перед созданием PR выполните `make critical-changes` — он покажет,
+изменены ли критические файлы приёмки (`.github/CODEOWNERS`); такие
+изменения требуют Approve владельца файла.
+
+Остальные команды — `make help`.
 
 ## Документация проекта
 
@@ -199,6 +172,10 @@ alembic heads
 | [Сервер БД](docs/deployment-database.md)                 | PostgreSQL, минимальные права, firewall                     |
 | [Приложение и systemd](docs/deployment-app.md)           | Развёртывание, настройки вне кода, служба                   |
 | [Проверка на защите](docs/deployment-checklist.md)       | Чек-лист проверок ЛР №2                                     |
+| [Правила качества](docs/quality-rules.md)                | Проверочный контур, запреты, журнал исключений              |
+| [Тестирование](docs/testing.md)                          | Тестовая конфигурация, изоляция данных, отчёты              |
+| [Покрытие ТЗ тестами](docs/test-coverage.md)             | Матрица «требование ТЗ — тесты», граничные случаи           |
+| [Миграции и резервные копии](docs/database-maintenance.md) | Миграции, backup, restore, проверка на заполненной БД     |
 
 Все документы отображаются непосредственно на GitHub в режиме **Preview**. Файл со схемой данных содержит визуальную ER-диаграмму, которая строится средствами Mermaid.
 

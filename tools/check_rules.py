@@ -18,8 +18,17 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # Минимальные значения. Повышать можно, понижать — только через PR
 # с записью в журнале исключений docs/quality-rules.md.
-MIN_COVERAGE = 65
-REQUIRED_VERIFY_STEPS = ["format-check", "lint", "sast", "rules-check", "test"]
+MIN_COVERAGE = 90
+REQUIRED_VERIFY_STEPS = [
+    "format-check",
+    "lint",
+    "sast",
+    "rules-check",
+    "test",
+    "migrations-check",
+    "backup-check",
+    "mutation",
+]
 REQUIRED_PYTEST_OPTIONS = ["--strict-markers", "--strict-config"]
 
 SKIP_PATTERNS = re.compile(
