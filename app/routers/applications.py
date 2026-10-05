@@ -114,6 +114,7 @@ def update_application(
         ) from None
 
     application.status = application_data.status
+    application.rejection_reason = application_data.rejection_reason
 
     db.commit()
     db.refresh(application)

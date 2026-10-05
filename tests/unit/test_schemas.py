@@ -33,7 +33,8 @@ def test_unknown_payment_status_is_rejected():
 
 @pytest.mark.parametrize("status", ["pending", "confirmed", "rejected"])
 def test_known_application_statuses(status):
-    assert ApplicationUpdate(status=status).status == status
+    update = ApplicationUpdate(status=status, rejection_reason="Причина")
+    assert update.status == status
 
 
 def test_unknown_application_status_is_rejected():
