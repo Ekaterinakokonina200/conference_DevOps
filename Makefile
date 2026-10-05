@@ -121,7 +121,7 @@ restore: $(VENV_STAMP)
 	$(PY) tools/db_restore.py "$(file)"
 
 # Обязательный набор проверок. Убирать шаги запрещено (см. make rules-check).
-verify: format-check lint sast rules-check test
+verify: format-check lint sast rules-check test migrations-check backup-check mutation
 	@echo "make verify: все проверки пройдены"
 
 clean:
