@@ -126,3 +126,4 @@ verify: format-check lint sast rules-check test migrations-check backup-check mu
 
 clean:
 	$(PY) -c "import shutil; [shutil.rmtree(p, ignore_errors=True) for p in ('reports', '.pytest_cache', '.ruff_cache')]"
+# demo
