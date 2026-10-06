@@ -11,6 +11,10 @@ class Application(Base):
             "status IN ('pending', 'confirmed', 'rejected')",
             name="ck_applications_status",
         ),
+        CheckConstraint(
+            "status <> 'rejected' OR rejection_reason IS NOT NULL",
+            name="ck_applications_rejection_reason",
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -26,6 +30,11 @@ class Application(Base):
         String(50),
         nullable=False,
         default="pending",
+    )
+
+    rejection_reason = Column(
+        String(500),
+        nullable=True,
     )
 
     created_at = Column(

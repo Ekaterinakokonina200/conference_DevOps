@@ -10,11 +10,13 @@ from datetime import date, datetime
 
 PAID = "paid"
 CONFIRMED = "confirmed"
+REJECTED = "rejected"
 SENT = "sent"
 
 FEE_NOT_PAID = "Registration fee must be paid before confirmation"
 DATES_REQUIRED = "Check-in and check-out dates are required"
 CHECK_OUT_BEFORE_CHECK_IN = "Check-out date must be after check-in date"
+REASON_REQUIRED = "Rejection reason is required"
 
 
 class BusinessRuleError(Exception):
@@ -36,6 +38,16 @@ def ensure_application_status_allowed(
     """ТЗ 8.1: заявку нельзя подтвердить без оплаты со статусом paid."""
     if new_status == CONFIRMED and not has_paid_fee(payment_statuses):
         raise BusinessRuleError(FEE_NOT_PAID)
+
+
+def rejection_reason_for(status: str, reason: str | None) -> str | None:
+    """Отклонённая заявка обязана иметь причину; у других статусов её нет."""
+    if status != REJECTED:
+        return None
+    cleaned = (reason or "").strip()
+    if not cleaned:
+        raise ValueError(REASON_REQUIRED)
+    return cleaned
 
 
 def payment_date_for(status: str, now: datetime) -> datetime | None:

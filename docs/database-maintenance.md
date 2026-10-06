@@ -15,6 +15,7 @@
 | 7 | `c027a5eb74d0` | таблица users | v0.1.0 |
 | 8 | `d4f8a1c2b3e5` | CHECK-ограничения статусов и суммы оплаты; приведение старых статусов к допустимым | v0.3.0 |
 | 9 | `e7b9c3d5f6a1` | ON DELETE CASCADE и индексы для participant_id | v0.3.0 |
+| 10 | `f2a6d8e4c9b7` | причина отклонения заявки (`applications.rejection_reason`) | v0.3.0 |
 
 Команды:
 
@@ -44,6 +45,7 @@ make migrations-check           # проверка миграций на тес�
 | `test_migrations_have_single_head` | нет параллельных веток миграций |
 | `test_upgrade_clean_database` | пустая база создаётся миграциями, модели совпадают со схемой |
 | `test_upgrade_filled_database_keeps_data` | база версии v0.1.0 с данными обновляется, данные сохраняются, «грязные» статусы исправляются |
+| `test_old_rejected_applications_get_default_reason` | старые отклонённые заявки получают причину по умолчанию |
 | `test_upgrade_refuses_to_hide_bad_payments` | некорректные оплаты останавливают миграцию, база остаётся на прежней версии |
 | `test_constraints_reject_invalid_data` | база сама отклоняет недопустимые значения |
 | `test_deleting_participant_cascades_to_related_rows` | удаление участника удаляет связанные записи |

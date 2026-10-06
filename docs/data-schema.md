@@ -48,6 +48,7 @@ erDiagram
         int id PK
         int participant_id FK
         string status
+        string rejection_reason
         datetime created_at
     }
 
@@ -176,6 +177,7 @@ applications
 | `id`             | `Integer`      | `INTEGER`       | `PRIMARY KEY`, индекс                | Уникальный идентификатор заявки |
 | `participant_id` | `Integer`      | `INTEGER`       | `NOT NULL`, `FOREIGN KEY`            | Идентификатор участника         |
 | `status`         | `String(50)`   | `VARCHAR(50)`   | `NOT NULL`, по умолчанию `pending`   | Статус заявки                   |
+| `rejection_reason` | `String(500)` | `VARCHAR(500)` | обязательно при `status = 'rejected'` (`ck_applications_rejection_reason`) | Причина отклонения заявки |
 | `created_at`     | `DateTime`     | `TIMESTAMP`     | `NOT NULL`, значение сервера `NOW()` | Дата и время создания заявки    |
 
 Внешний ключ:
@@ -369,6 +371,7 @@ hotel_requests.participant_id → participants.id
 | `ck_payments_amount_positive` | `payments` | `amount > 0` |
 | `ck_invitations_status` | `invitations` | `status IN ('created', 'sent', 'accepted', 'declined')` |
 | `ck_theses_status` | `theses` | `status IN ('submitted', 'approved', 'rejected')` |
+| `ck_applications_rejection_reason` | `applications` | `status <> 'rejected' OR rejection_reason IS NOT NULL` (миграция `f2a6d8e4c9b7`) |
 10. Поле `users.password_hash` является обязательным.
 11. Открытый пароль пользователя не хранится в базе данных.
 12. Сущность `User` не имеет внешних ключей к предметным сущностям.
