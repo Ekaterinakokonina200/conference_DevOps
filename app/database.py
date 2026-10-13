@@ -11,7 +11,10 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not configured")
 
-engine = create_engine(DATABASE_URL)
+# pool_pre_ping: перед выдачей соединения из пула проверяем, что оно живое.
+# Нужно в контейнерах: после перезапуска или восстановления контейнера БД
+# старые соединения в пуле разорваны, без проверки первый запрос дал бы 500.
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(
     autocommit=False,
