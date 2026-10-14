@@ -89,6 +89,22 @@ GET /health
 }
 ```
 
+Версия приложения и экземпляр, обработавший запрос (ЛР №4):
+
+```http
+GET /version
+```
+
+```json
+{
+  "version": "0.4.0",
+  "instance": "3f2c1a9b7d10"
+}
+```
+
+`version` задаётся при сборке образа (`APP_VERSION`), `instance` — имя
+контейнера или значение `INSTANCE_ID`.
+
 ### 3.3. Swagger
 
 ```http
