@@ -1,3 +1,6 @@
+import os
+import socket
+
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -13,16 +16,27 @@ from app.routers import (
     theses,
 )
 
+# Версия передаётся при сборке образа (ARG APP_VERSION в Dockerfile),
+# идентификатор экземпляра — имя контейнера (hostname) или INSTANCE_ID.
+APP_VERSION = os.getenv("APP_VERSION", "dev")
+INSTANCE_ID = os.getenv("INSTANCE_ID") or socket.gethostname()
+
 app = FastAPI(
     title="Conference Management System",
     description="API для учёта участников конференции",
-    version="0.1.0",
+    version=APP_VERSION,
 )
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/version")
+def version():
+    """Версия приложения и экземпляр, который обработал запрос."""
+    return {"version": APP_VERSION, "instance": INSTANCE_ID}
 
 
 app.include_router(
