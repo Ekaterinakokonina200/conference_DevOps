@@ -5,7 +5,7 @@
 - отключать замечания линтера и SAST без обоснования (noqa, nosec и т. п.);
 - снижать порог покрытия и добавлять исключения анализаторов без записи
   в журнал исключений docs/quality-rules.md;
-- убирать шаги из make verify;
+- убирать шаги из make verify и удалять проверку make container-check;
 - ставить зависимости без фиксированной версии.
 """
 
@@ -118,6 +118,16 @@ def check_verify_steps() -> None:
             errors.append(f"Makefile: в make verify нет обязательного шага {step}")
 
 
+def check_container_check() -> None:
+    """make container-check обязателен для изменений контейнерного окружения."""
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    match = re.search(r"^container-check:.*\n\t(.*)$", makefile, re.MULTILINE)
+    if not match or "tools/container_check.py" not in match.group(1):
+        errors.append("Makefile: нет команды container-check (container_check.py)")
+    if "--policy-only" in (match.group(1) if match else ""):
+        errors.append("Makefile: container-check ограничен только правилами")
+
+
 def check_pinned_requirements() -> None:
     for name in ("requirements.txt", "requirements-dev.txt"):
         lines = (ROOT / name).read_text(encoding="utf-8").splitlines()
@@ -134,6 +144,7 @@ def main() -> None:
     check_suppressions_justified()
     check_config()
     check_verify_steps()
+    check_container_check()
     check_pinned_requirements()
     if errors:
         print("Нарушены правила качества (docs/quality-rules.md):")
