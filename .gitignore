@@ -47,3 +47,7 @@ dist/
 reports/
 backups/
 .mutation_backup/
+
+# Настройки контейнерного окружения (ЛР №4) — содержат пароли
+.env.docker
+.env.check
