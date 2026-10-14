@@ -21,7 +21,8 @@ export PYTHONUTF8 := 1
 	test migrate migrate-down migration migrations-check backup restore \
 	backup-check seed mutation critical-changes verify clean \
 	container-env pin-images up down ps logs container-migrate container-backup \
-	container-restore container-restore-new container-sql container-counts
+	container-restore container-restore-new container-sql container-counts \
+	container-check container-policy
 
 help:
 	@echo "Установка и запуск"
@@ -49,6 +50,8 @@ help:
 	@echo "  make backup            резервная копия рабочей БД в backups/"
 	@echo "  make restore file=...  восстановление рабочей БД из копии"
 	@echo "Контейнеры (ЛР 4)"
+	@echo "  make container-check   ВСЕ проверки контейнерного окружения перед Pull Request"
+	@echo "  make container-policy  только правила (latest, root, секреты, healthcheck, порты)"
 	@echo "  make container-env     создать .env.docker со случайными паролями (один раз)"
 	@echo "  make up                собрать образ и запустить окружение (db, migrate, app)"
 	@echo "  make down              остановить и удалить контейнеры (данные в volume остаются)"
@@ -164,6 +167,14 @@ ps: .env.docker
 
 logs: .env.docker
 	$(COMPOSE) logs --tail=100 $(s)
+
+# Обязательная проверка контейнерного окружения (docs/container-rules.md).
+# Изменения Dockerfile, compose.yaml, .dockerignore принимаются только после неё.
+container-check: $(VENV_STAMP) reports
+	$(PY) tools/container_check.py $(if $(keep),--keep)
+
+container-policy: $(VENV_STAMP)
+	$(PY) tools/container_check.py --policy-only
 
 CONTAINER_DB := $(PY) tools/container_db.py
 
