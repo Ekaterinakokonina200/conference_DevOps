@@ -19,7 +19,8 @@ export PYTHONUTF8 := 1
 .DEFAULT_GOAL := help
 .PHONY: help setup install run quality format format-check lint sast rules-check \
 	test migrate migrate-down migration migrations-check backup restore \
-	backup-check seed mutation critical-changes verify clean
+	backup-check seed mutation critical-changes verify clean \
+	container-env pin-images up down ps logs
 
 help:
 	@echo "Установка и запуск"
@@ -46,6 +47,13 @@ help:
 	@echo "  make seed              заполнить рабочую БД демонстрационными данными"
 	@echo "  make backup            резервная копия рабочей БД в backups/"
 	@echo "  make restore file=...  восстановление рабочей БД из копии"
+	@echo "Контейнеры (ЛР 4)"
+	@echo "  make container-env     создать .env.docker со случайными паролями (один раз)"
+	@echo "  make up                собрать образ и запустить окружение (db, migrate, app)"
+	@echo "  make down              остановить и удалить контейнеры (данные в volume остаются)"
+	@echo "  make ps                состояние контейнеров"
+	@echo "  make logs s=app        журналы сервиса"
+	@echo "  make pin-images        закрепить внешние образы по дайджесту"
 
 $(VENV_STAMP): requirements.txt requirements-dev.txt
 	$(PYTHON_BOOT) -m venv .venv
@@ -123,6 +131,32 @@ restore: $(VENV_STAMP)
 # Обязательный набор проверок. Убирать шаги запрещено (см. make rules-check).
 verify: format-check lint sast rules-check test migrations-check backup-check mutation
 	@echo "make verify: все проверки пройдены"
+
+# ---------- Контейнерное окружение (ЛР №4) ----------
+# Все настройки и пароли берутся из .env.docker (в Git не попадает).
+COMPOSE := docker compose --env-file .env.docker
+
+.env.docker:
+	$(MAKE) container-env
+
+container-env: $(VENV_STAMP)
+	$(PY) tools/container_env.py
+
+pin-images: $(VENV_STAMP)
+	$(PY) tools/pin_images.py $(if $(update),--update)
+
+# --wait: команда завершается, только когда app прошёл healthcheck
+up: .env.docker
+	$(COMPOSE) up -d --build --wait --wait-timeout 180 app
+
+down: .env.docker
+	$(COMPOSE) down
+
+ps: .env.docker
+	$(COMPOSE) ps -a
+
+logs: .env.docker
+	$(COMPOSE) logs --tail=100 $(s)
 
 clean:
 	$(PY) -c "import shutil; [shutil.rmtree(p, ignore_errors=True) for p in ('reports', '.pytest_cache', '.ruff_cache')]"

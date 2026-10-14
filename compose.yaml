@@ -1,0 +1,149 @@
+# Контейнерное окружение Conference Management System (ЛР №4).
+#
+# Запуск:  make up     (docker compose --env-file .env.docker up ...)
+# Остановка: make down (данные БД остаются в volume)
+#
+# Переменные ${...} берутся из файла .env.docker (создаётся make container-env,
+# в Git не попадает). Значения без умолчания (:?) обязательны: если их нет,
+# Compose остановится с ошибкой, а не запустит БД с пустым паролем.
+#
+# Правила окружения (проверяет make container-check, docs/container-rules.md):
+# образы с версией и дайджестом, без latest; процессы не от root; секреты
+# не в образе; healthcheck у каждого сервиса; ограничения ресурсов;
+# наружу опубликован только порт приложения и только на 127.0.0.1.
+
+name: conference
+
+x-app-build: &app-build
+  context: .
+  dockerfile: Dockerfile
+  args:
+    APP_VERSION: ${APP_VERSION:-0.3.0}
+
+x-app-environment: &app-environment
+  DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@db:5432/${POSTGRES_DB:?}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:?}
+  JWT_ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    # Порт 5432 наружу НЕ публикуется: к БД обращаются только контейнеры
+    # из сети backend. Для обслуживания — make container-sql.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    stop_grace_period: 30s
+    shm_size: 128mb
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          pids: 200
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+    logging: *logging
+
+  migrate:
+    # Разовая задача: применить миграции и завершиться с кодом 0.
+    # Приложение стартует только после её успешного завершения.
+    # Образ тот же, что у app (его собирает сервис app).
+    image: conference-app:${APP_VERSION:-0.3.0}
+    command: ["alembic", "upgrade", "head"]
+    environment: *app-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: "no"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          pids: 50
+          cpus: "0.5"
+          memory: 256M
+    logging: *logging
+
+  app:
+    build: *app-build
+    image: conference-app:${APP_VERSION:-0.3.0}
+    environment: *app-environment
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+      - frontend
+    ports:
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    # init не используется: uvicorn — процесс № 1 и сам корректно завершается
+    # по SIGTERM с кодом 0 (под init он завершался бы с кодом 143).
+    restart: unless-stopped
+    stop_grace_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          pids: 100
+          cpus: "1.0"
+          memory: 384M
+        reservations:
+          memory: 64M
+    logging: *logging
+
+networks:
+  # internal: true — у сети нет выхода наружу; БД доступна только контейнерам
+  # этой сети и сама не может обращаться в интернет.
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  pgdata:
+    # Имя тома задаётся явно: так его видно в docker volume ls, а для
+    # восстановления в новый том достаточно поменять PGDATA_VOLUME.
+    name: ${PGDATA_VOLUME:-conference_pgdata}
