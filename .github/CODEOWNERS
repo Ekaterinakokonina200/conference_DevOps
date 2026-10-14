@@ -32,3 +32,16 @@
 # Развёртывание (ЛР №2)
 /deploy/                       @sugarkisss @Ekaterinakokonina200
 /scripts/                      @Ekaterinakokonina200 @Maryleksa
+
+# Контейнерное окружение (ЛР №4)
+/Dockerfile                    @sugarkisss @Ekaterinakokonina200
+/.dockerignore                 @sugarkisss @Ekaterinakokonina200
+/compose.yaml                  @Maryleksa @sugarkisss
+/compose.scale.yaml            @sugarkisss @Ekaterinakokonina200
+/.env.docker.example           @Maryleksa @Ekaterinakokonina200
+/docker/                       @sugarkisss @Ekaterinakokonina200
+/tools/pin_images.py           @sugarkisss @Ekaterinakokonina200
+/tools/container_env.py        @Maryleksa @Ekaterinakokonina200
+/tools/container_db.py         @Maryleksa @sugarkisss
+/tools/container_check.py      @Ekaterinakokonina200 @Maryleksa
+/docs/container-rules.md       @Ekaterinakokonina200 @Maryleksa
