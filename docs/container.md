@@ -67,3 +67,23 @@ make ps              # состояние: db и app — healthy, migrate — ex
 make logs s=app      # журнал приложения
 make down            # остановка; данные остаются в томе
 ```
+
+## 3. Миграции, резервное копирование и восстановление в контейнерах
+
+Файл: `tools/container_db.py`. Все действия выполняются утилитами PostgreSQL
+внутри контейнера `db` (`docker compose exec`), поэтому версии `pg_dump` и
+сервера совпадают, на компьютере не нужен установленный PostgreSQL, а пароль
+не передаётся в командной строке.
+
+| Команда | Что делает |
+|---|---|
+| `make container-migrate` | запускает разовый контейнер `migrate` (`alembic upgrade head`) и показывает версию схемы |
+| `make container-backup` | `pg_dump -Fc` внутри `db` → `backups/container_conference_ГГГГММДД-ЧЧММСС.dump`, затем проверка архива `pg_restore --list` |
+| `make container-restore file=latest` | проверяет архив; сохраняет текущее состояние (`_before-restore`); останавливает `app`; `pg_restore --clean --if-exists --single-transaction --exit-on-error`; запускает `app` и выводит число записей |
+| `make container-restore-new file=latest volume=ИМЯ` | восстановление в **новый** том: `docker compose down` (старый том остаётся), запуск `db` с пустым томом `ИМЯ`, восстановление копии, запуск `app`; в `.env.docker` записывается `PGDATA_VOLUME=ИМЯ` |
+| `make container-sql q="..."` | SQL-запрос к базе в контейнере |
+| `make container-counts` | число записей в каждой таблице |
+
+Откат после восстановления в новый том: вернуть в `.env.docker` прежнее
+значение `PGDATA_VOLUME` и выполнить `make down && make up` — старый том не
+удалялся.

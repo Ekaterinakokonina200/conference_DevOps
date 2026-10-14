@@ -20,7 +20,8 @@ export PYTHONUTF8 := 1
 .PHONY: help setup install run quality format format-check lint sast rules-check \
 	test migrate migrate-down migration migrations-check backup restore \
 	backup-check seed mutation critical-changes verify clean \
-	container-env pin-images up down ps logs
+	container-env pin-images up down ps logs container-migrate container-backup \
+	container-restore container-restore-new container-sql container-counts
 
 help:
 	@echo "Установка и запуск"
@@ -54,6 +55,12 @@ help:
 	@echo "  make ps                состояние контейнеров"
 	@echo "  make logs s=app        журналы сервиса"
 	@echo "  make pin-images        закрепить внешние образы по дайджесту"
+	@echo "  make container-migrate миграции в контейнерном окружении"
+	@echo "  make container-backup  резервная копия БД из контейнера в backups/"
+	@echo "  make container-restore file=latest   восстановление в текущий том"
+	@echo "  make container-restore-new file=latest volume=ИМЯ   восстановление в новый том"
+	@echo "  make container-sql q=\"SELECT ...\"   SQL-запрос к БД в контейнере"
+	@echo "  make container-counts  число записей в таблицах БД в контейнере"
 
 $(VENV_STAMP): requirements.txt requirements-dev.txt
 	$(PYTHON_BOOT) -m venv .venv
@@ -157,6 +164,26 @@ ps: .env.docker
 
 logs: .env.docker
 	$(COMPOSE) logs --tail=100 $(s)
+
+CONTAINER_DB := $(PY) tools/container_db.py
+
+container-migrate: .env.docker
+	$(CONTAINER_DB) migrate
+
+container-backup: .env.docker
+	$(CONTAINER_DB) backup
+
+container-restore: .env.docker
+	$(CONTAINER_DB) restore --file "$(file)"
+
+container-restore-new: .env.docker
+	$(CONTAINER_DB) restore-new --file "$(file)" --volume "$(volume)"
+
+container-sql: .env.docker
+	$(CONTAINER_DB) sql --query "$(q)"
+
+container-counts: .env.docker
+	$(CONTAINER_DB) counts
 
 clean:
 	$(PY) -c "import shutil; [shutil.rmtree(p, ignore_errors=True) for p in ('reports', '.pytest_cache', '.ruff_cache')]"
