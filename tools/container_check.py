@@ -404,14 +404,18 @@ def process_users(compose: Compose) -> None:
         "    try:\n"
         "        s = open(f'/proc/{p}/status').read()\n"
         "        c = open(f'/proc/{p}/cmdline','rb').read()"
-        ".replace(b'\\0', b' ').decode()\n"
+        ".replace(b'\\0', b' ').decode().replace('\\n', ' ')\n"
         "    except OSError:\n"
         "        continue\n"
         "    uid = [ln.split()[1] for ln in s.splitlines()"
         " if ln.startswith('Uid:')][0]\n"
         "    print(p, uid, c[:60])\n"
     )
-    out = compose.run("exec", "-T", "app", "python", "-c", script).stdout.decode()
+    # скрипт передаётся через стандартный ввод (python -), а не аргументом -c:
+    # иначе многострочный текст попадает в командную строку процесса
+    out = compose.run(
+        "exec", "-T", "app", "python", "-", input_bytes=script.encode()
+    ).stdout.decode()
     # у процесса может не быть командной строки — дополняем до трёх полей
     rows = [
         (line.split(None, 2) + [""])[:3] for line in out.splitlines() if line.strip()
