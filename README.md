@@ -156,6 +156,29 @@ make verify
 
 Остальные команды — `make help`.
 
+## Запуск в контейнерах (Docker)
+
+Нужен Docker Desktop (Windows) или Docker Engine с Compose v2.
+
+```bash
+make container-env   # один раз: .env.docker со случайными паролями
+make up              # сборка образа, запуск db -> migrate -> app
+```
+
+Приложение: <http://127.0.0.1:8000>. Порт базы данных наружу не публикуется.
+
+| Команда | Назначение |
+|---|---|
+| `make up` / `make down` | запуск / остановка (данные остаются в томе `conference_pgdata`) |
+| `make ps`, `make logs s=app` | состояние и журналы |
+| `make container-migrate` | миграции |
+| `make container-backup` | резервная копия БД из контейнера |
+| `make container-restore file=latest` | восстановление в текущий том |
+| `make container-restore-new file=latest volume=ИМЯ` | восстановление в новый том |
+| `make container-check` | **обязательная** проверка контейнерного окружения перед Pull Request |
+
+Правила контейнерного окружения — [docs/container-rules.md](docs/container-rules.md).
+
 ## Документация проекта
 
 Подробная документация проекта разделена по тематическим файлам:
@@ -176,6 +199,9 @@ make verify
 | [Тестирование](docs/testing.md)                          | Тестовая конфигурация, изоляция данных, отчёты              |
 | [Покрытие ТЗ тестами](docs/test-coverage.md)             | Матрица «требование ТЗ — тесты», граничные случаи           |
 | [Миграции и резервные копии](docs/database-maintenance.md) | Миграции, backup, restore, проверка на заполненной БД     |
+| [Контейнерное окружение](docs/container.md)              | Образ, Compose, сети, том, backup/restore в контейнерах     |
+| [Правила контейнеров](docs/container-rules.md)           | Запреты и `make container-check`, порядок изменений         |
+| [Ограничения ресурсов](docs/container-resources.md)      | Лимиты CPU, памяти и процессов, обоснование и измерения     |
 
 Все документы отображаются непосредственно на GitHub в режиме **Preview**. Файл со схемой данных содержит визуальную ER-диаграмму, которая строится средствами Mermaid.
 
@@ -215,4 +241,10 @@ v0.1.0
 
 ```text
 v0.3.0
+```
+
+Версия с контейнерным окружением и автоматической проверкой (ЛР №4):
+
+```text
+v0.4.0
 ```
