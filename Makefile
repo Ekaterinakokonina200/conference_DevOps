@@ -22,7 +22,7 @@ export PYTHONUTF8 := 1
 	backup-check seed mutation critical-changes verify clean \
 	container-env pin-images up down ps logs container-migrate container-backup \
 	container-restore container-restore-new container-sql container-counts \
-	container-check container-policy
+	container-check container-policy up-scale down-scale scale-check
 
 help:
 	@echo "Установка и запуск"
@@ -52,6 +52,9 @@ help:
 	@echo "Контейнеры (ЛР 4)"
 	@echo "  make container-check   ВСЕ проверки контейнерного окружения перед Pull Request"
 	@echo "  make container-policy  только правила (latest, root, секреты, healthcheck, порты)"
+	@echo "  make up-scale          доп. задание: Nginx + 2 экземпляра приложения (порт 8080)"
+	@echo "  make scale-check       доп. задание: балансировка, отказ экземпляра, 429"
+	@echo "  make down-scale        остановить окружение с Nginx"
 	@echo "  make container-env     создать .env.docker со случайными паролями (один раз)"
 	@echo "  make up                собрать образ и запустить окружение (db, migrate, app)"
 	@echo "  make down              остановить и удалить контейнеры (данные в volume остаются)"
@@ -174,7 +177,19 @@ container-check: $(VENV_STAMP) reports
 	$(PY) tools/container_check.py $(if $(keep),--keep)
 
 container-policy: $(VENV_STAMP)
-	$(PY) tools/container_check.py --policy-only
+	$(PY) tools/container_check.py --policy-only $(if $(scale),--with-scale)
+
+# Дополнительное задание: Nginx и два экземпляра приложения
+COMPOSE_SCALE := $(COMPOSE) -f compose.yaml -f compose.scale.yaml
+
+up-scale: .env.docker
+	$(COMPOSE_SCALE) up -d --build --wait --wait-timeout 180
+
+down-scale: .env.docker
+	$(COMPOSE_SCALE) down
+
+scale-check: .env.docker
+	$(PY) tools/scale_check.py
 
 CONTAINER_DB := $(PY) tools/container_db.py
 

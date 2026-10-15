@@ -23,6 +23,7 @@ conference_check (свои контейнеры, сеть, том, порт 1800
 Запуск:  make container-check            полная проверка (3–6 минут)
          make container-policy           только шаг 1 (несколько секунд)
          make container-check keep=1     не удалять окружение проверки
+         make container-policy scale=1   правила вместе с compose.scale.yaml
 """
 
 import json
@@ -293,7 +294,10 @@ def git_ignore_problems() -> list[str]:
 
 
 def compose_files() -> list[str]:
-    return [name for name in ("compose.yaml",) if (ROOT / name).exists()]
+    names = ["compose.yaml"]
+    if "--with-scale" in sys.argv:
+        names.append("compose.scale.yaml")  # дополнительное задание: Nginx
+    return [name for name in names if (ROOT / name).exists()]
 
 
 def policy(env_file: Path) -> None:
@@ -400,18 +404,14 @@ def process_users(compose: Compose) -> None:
         "    try:\n"
         "        s = open(f'/proc/{p}/status').read()\n"
         "        c = open(f'/proc/{p}/cmdline','rb').read()"
-        ".replace(b'\\0', b' ').decode().replace('\\n', ' ')\n"
+        ".replace(b'\\0', b' ').decode()\n"
         "    except OSError:\n"
         "        continue\n"
         "    uid = [ln.split()[1] for ln in s.splitlines()"
         " if ln.startswith('Uid:')][0]\n"
         "    print(p, uid, c[:60])\n"
     )
-    # скрипт передаётся через стандартный ввод (python -), а не аргументом -c:
-    # иначе многострочный текст попадает в командную строку процесса
-    out = compose.run(
-        "exec", "-T", "app", "python", "-", input_bytes=script.encode()
-    ).stdout.decode()
+    out = compose.run("exec", "-T", "app", "python", "-c", script).stdout.decode()
     # у процесса может не быть командной строки — дополняем до трёх полей
     rows = [
         (line.split(None, 2) + [""])[:3] for line in out.splitlines() if line.strip()
