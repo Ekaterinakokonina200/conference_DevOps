@@ -23,6 +23,7 @@ conference_check (свои контейнеры, сеть, том, порт 1800
 Запуск:  make container-check            полная проверка (3–6 минут)
          make container-policy           только шаг 1 (несколько секунд)
          make container-check keep=1     не удалять окружение проверки
+         make container-policy scale=1   правила вместе с compose.scale.yaml
 """
 
 import json
@@ -293,7 +294,10 @@ def git_ignore_problems() -> list[str]:
 
 
 def compose_files() -> list[str]:
-    return [name for name in ("compose.yaml",) if (ROOT / name).exists()]
+    names = ["compose.yaml"]
+    if "--with-scale" in sys.argv:
+        names.append("compose.scale.yaml")  # дополнительное задание: Nginx
+    return [name for name in names if (ROOT / name).exists()]
 
 
 def policy(env_file: Path) -> None:
