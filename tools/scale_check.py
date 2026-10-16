@@ -50,7 +50,8 @@ def get(path: str):
         with urllib.request.urlopen(NGINX + path, timeout=10) as resp:  # nosec B310
             return resp.status, json.loads(resp.read()), resp.headers.get("X-Upstream")
     except urllib.error.HTTPError as error:
-        return error.code, None, None
+        # заголовок X-Upstream есть и в ответе с ошибкой — видно, куда ходил Nginx
+        return error.code, None, error.headers.get("X-Upstream")
     except OSError:
         return 0, None, None
 
@@ -62,6 +63,41 @@ def distribution(count: int) -> collections.Counter:
         seen[(status, body["instance"] if body else "-", upstream)] += 1
         time.sleep(0.05)
     return seen
+
+
+def health(container: str) -> str:
+    result = subprocess.run(
+        ["docker", "inspect", "-f", "{{.State.Health.Status}}", container],
+        capture_output=True,
+    )
+    return result.stdout.decode().strip()
+
+
+def start_and_wait(containers: list[str]) -> None:
+    """Запустить остановленные экземпляры и дождаться healthy."""
+    for container in containers:
+        subprocess.run(["docker", "start", container], capture_output=True, check=True)
+    deadline = time.monotonic() + 90
+    while any(health(c) != "healthy" for c in containers):
+        if time.monotonic() > deadline:
+            sys.exit(f"  ОШИБКА: экземпляры не стали healthy: {containers}")
+        time.sleep(2)
+    # Nginx переразрешает имя app раз в 10 секунд (resolver valid=10s)
+    time.sleep(12)
+
+
+def ensure_all_running() -> None:
+    """Все экземпляры app должны работать (прерванная проверка могла
+    оставить один остановленным)."""
+    all_ids = compose("ps", "-a", "-q", "app").split()
+    running = set(compose("ps", "-q", "app").split())
+    if len(all_ids) < 2:
+        sys.exit("  ОШИБКА: экземпляров app меньше двух — выполните make up-scale")
+    stopped = [c for c in all_ids if c not in running]
+    if stopped:
+        names = ", ".join(c[:12] for c in stopped)
+        print(f"  запускаю остановленные экземпляры: {names}")
+        start_and_wait(stopped)
 
 
 def show(seen: collections.Counter) -> None:
@@ -82,6 +118,7 @@ def main() -> None:
     print(f"  порт {APP_PORT} закрыт, приложение доступно только через Nginx")
 
     print("2. Распределение запросов (20 запросов GET /version через Nginx)")
+    ensure_all_running()
     seen = distribution(20)
     show(seen)
     instances = {instance for (status, instance, _) in seen if status == 200}
@@ -93,13 +130,16 @@ def main() -> None:
     stopped = ids[0]
     subprocess.run(["docker", "stop", stopped], capture_output=True, check=True)
     print(f"  остановлен контейнер {stopped[:12]}")
-    seen = distribution(20)
-    show(seen)
-    if any(status != 200 for (status, _, _) in seen):
-        sys.exit("  ОШИБКА: после остановки экземпляра были неуспешные ответы")
-    print("  все 20 запросов успешны — сервис доступен")
-    subprocess.run(["docker", "start", stopped], capture_output=True, check=True)
-    print(f"  контейнер {stopped[:12]} запущен снова")
+    try:
+        seen = distribution(20)
+        show(seen)
+        if any(status != 200 for (status, _, _) in seen):
+            sys.exit("  ОШИБКА: после остановки экземпляра были неуспешные ответы")
+        print("  все 20 запросов успешны — сервис доступен")
+    finally:
+        # экземпляр запускается снова при любом исходе, даже при ошибке или Ctrl+C
+        start_and_wait([stopped])
+        print(f"  контейнер {stopped[:12]} запущен снова")
 
     print("4. Ограничение частоты (100 запросов без паузы)")
     codes = collections.Counter(get("/health")[0] for _ in range(100))
