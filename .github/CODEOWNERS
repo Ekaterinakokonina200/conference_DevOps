@@ -10,6 +10,7 @@
 /requirements.txt              @Ekaterinakokonina200 @Maryleksa
 /requirements-dev.txt          @Ekaterinakokonina200 @Maryleksa
 /tools/check_rules.py          @Ekaterinakokonina200 @Maryleksa
+/tools/sast_report.py          @Ekaterinakokonina200 @Maryleksa
 /tools/critical_changes.py     @Ekaterinakokonina200 @Maryleksa
 /tools/setup_project.py        @Ekaterinakokonina200 @Maryleksa
 /tools/pgtools.py              @Ekaterinakokonina200 @Maryleksa

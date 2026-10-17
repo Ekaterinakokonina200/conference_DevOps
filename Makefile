@@ -17,7 +17,7 @@ VENV_STAMP := .venv/.installed
 export PYTHONUTF8 := 1
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install run quality format format-check lint sast rules-check \
+.PHONY: help setup install run quality format format-check lint sast sast-report rules-check \
 	test migrate migrate-down migration migrations-check backup restore \
 	backup-check seed mutation critical-changes verify clean \
 	container-env pin-images up down ps logs container-migrate container-backup \
@@ -35,7 +35,8 @@ help:
 	@echo "  make format            автоматическое форматирование кода"
 	@echo "  make format-check      проверка форматирования (ruff format)"
 	@echo "  make lint              линтер (ruff check)"
-	@echo "  make sast              анализ безопасности кода (bandit)"
+	@echo "  make sast              анализ безопасности кода (bandit), отчёт в терминале и reports/"
+	@echo "  make sast-report       make sast и открыть HTML-отчёт bandit в браузере"
 	@echo "  make rules-check       запрет пропуска тестов и исключений без обоснования"
 	@echo "  make test              unit- и интеграционные тесты, отчёты и покрытие"
 	@echo "  make migrations-check  миграции на чистой и заполненной БД"
@@ -95,10 +96,14 @@ format-check: $(VENV_STAMP)
 lint: $(VENV_STAMP)
 	$(PY) -m ruff check .
 
+# Отчёт bandit (tools/sast_report.py): в терминале — число проверенных файлов
+# и строк, замечания с файлом и строкой, обоснованные исключения # nosec;
+# в файлах reports/bandit.txt, .html, .json. При замечании — ошибка.
 sast: $(VENV_STAMP) reports
-	$(PY) -m bandit -c pyproject.toml -r app -q
-	$(PY) -m bandit -c pyproject.toml -r app -q -f html -o reports/bandit.html
-	@echo "bandit: замечаний нет, отчёт reports/bandit.html"
+	$(PY) tools/sast_report.py
+
+sast-report: sast
+	$(PY) -c "import pathlib, webbrowser; webbrowser.open(pathlib.Path('reports/bandit.html').resolve().as_uri())"
 
 # Рекомендуемая общая команда курса: форматирование и статический анализ
 quality: format-check lint sast
