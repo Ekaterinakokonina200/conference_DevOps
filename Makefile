@@ -116,8 +116,8 @@ test: $(VENV_STAMP) reports
 		--cov-report=html:reports/htmlcov --cov-report=xml:reports/coverage.xml \
 		--junitxml=reports/junit.xml
 
-migrations-check: $(VENV_STAMP)
-	$(PY) -m pytest -m migrations -p no:cacheprovider
+migrations-check: $(VENV_STAMP) reports
+	$(PY) -m pytest -m migrations -p no:cacheprovider --junitxml=reports/migrations-junit.xml
 
 backup-check: $(VENV_STAMP)
 	$(PY) tools/backup_check.py
