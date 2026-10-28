@@ -15,7 +15,7 @@
 #     настройки передаются переменными окружения при запуске.
 
 # ---------- этап 1: сборка зависимостей ----------
-FROM python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db AS builder
+FROM python:3.12.15-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70 AS builder
 
 ENV PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -28,7 +28,7 @@ RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip check
 
 # ---------- этап 2: итоговый образ ----------
-FROM python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db AS runtime
+FROM python:3.12.15-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70 AS runtime
 
 ARG APP_VERSION=0.4.0
 
@@ -46,6 +46,11 @@ ENV PATH="/opt/venv/bin:${PATH}" \
 RUN groupadd --system --gid 10001 app \
     && useradd --system --uid 10001 --gid app \
        --home-dir /nonexistent --no-create-home --shell /usr/sbin/nologin app
+
+# Обновления безопасности Debian, вышедшие после сборки базового образа
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends --only-upgrade libssl3 openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
