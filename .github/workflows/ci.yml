@@ -81,3 +81,136 @@ jobs:
           make critical-changes base=origin/${{ github.base_ref }} | tee critical.txt
           { echo '### Критические файлы приёмки'; echo '```'; cat critical.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
+  # ---------------------------------------------------------------- тесты
+  tests:
+    name: tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # Отдельная тестовая БД в контейнере-сервисе; пароль — из секретов репозитория
+      TEST_DATABASE_URL: postgresql://postgres:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/conference_test
+    services:
+      postgres:
+        image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          POSTGRES_DB: conference_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - name: Секрет CI_DB_PASSWORD задан
+        env:
+          CI_DB_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+        run: test -n "$CI_DB_PASSWORD" || { echo "::error::Не задан секрет CI_DB_PASSWORD (Settings → Secrets and variables → Actions)"; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: make install
+        run: make install
+      - name: make test (unit + integration, покрытие)
+        run: make test
+      - name: make mutation
+        shell: bash
+        run: make mutation 2>&1 | tee reports/mutation.txt
+      - name: Отчёты тестов и покрытия
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: test-reports
+          path: |
+            reports/junit.xml
+            reports/coverage.xml
+            reports/htmlcov/
+            reports/mutation.txt
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------- миграции
+  migrations:
+    name: migrations
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # Отдельная тестовая БД в контейнере-сервисе; пароль — из секретов репозитория
+      TEST_DATABASE_URL: postgresql://postgres:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/conference_test
+    services:
+      postgres:
+        image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          POSTGRES_DB: conference_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: make install
+        run: make install
+      - name: make migrations-check (чистая и заполненная БД)
+        run: make migrations-check
+      - name: Отчёт миграций
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: migrations-report
+          path: reports/migrations-junit.xml
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------- резервное копирование
+  backup:
+    name: backup
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # Отдельная тестовая БД в контейнере-сервисе; пароль — из секретов репозитория
+      TEST_DATABASE_URL: postgresql://postgres:${{ secrets.CI_DB_PASSWORD }}@localhost:5432/conference_test
+    services:
+      postgres:
+        image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.CI_DB_PASSWORD }}
+          POSTGRES_DB: conference_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s
+          --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Клиент PostgreSQL 17 (pg_dump и pg_restore той же версии, что сервер)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+          echo "PG_BIN=/usr/lib/postgresql/17/bin" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - name: make install
+        run: make install
+      - name: make backup-check (копия → порча → восстановление)
+        shell: bash
+        run: mkdir -p reports && make backup-check 2>&1 | tee reports/backup-check.txt
+      - name: Отчёт резервного копирования
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: backup-report
+          path: reports/backup-check.txt
+          if-no-files-found: warn
+
