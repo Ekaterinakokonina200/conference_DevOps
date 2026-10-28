@@ -17,3 +17,6 @@ ruff==0.16.6
 
 # Статический анализ безопасности (SAST)
 bandit==1.9.4
+
+# Разбор pipeline CI в make rules-check (ЛР №5)
+PyYAML==6.0.3
