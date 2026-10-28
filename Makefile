@@ -22,7 +22,8 @@ export PYTHONUTF8 := 1
 	backup-check seed mutation critical-changes verify clean \
 	container-env pin-images up down ps logs container-migrate container-backup \
 	container-restore container-restore-new container-sql container-counts \
-	container-check container-policy up-scale down-scale scale-check
+	container-check container-policy up-scale down-scale scale-check \
+	secrets-scan deps-scan image-scan security ci-local
 
 help:
 	@echo "Установка и запуск"
@@ -43,6 +44,12 @@ help:
 	@echo "  make backup-check      копия -> порча данных -> восстановление (тестовая БД)"
 	@echo "  make mutation          мутационная проверка основной логики"
 	@echo "  make critical-changes  изменённые критические файлы приёмки (для описания PR)"
+	@echo "Безопасность и CI (ЛР 5, нужен Docker)"
+	@echo "  make secrets-scan      поиск секретов в истории Git (gitleaks)"
+	@echo "  make deps-scan         уязвимости зависимостей requirements.txt (trivy)"
+	@echo "  make image-scan        уязвимости контейнерного образа (trivy); image=ИМЯ:ТЕГ"
+	@echo "  make security          sast + secrets-scan + deps-scan"
+	@echo "  make ci-local          ВСЁ, что проверяет CI: verify, security, container-check, image-scan"
 	@echo "База данных"
 	@echo "  make migrate           применить миграции к рабочей БД"
 	@echo "  make migrate-down      откатить последнюю миграцию рабочей БД"
@@ -149,6 +156,26 @@ restore: $(VENV_STAMP)
 # Обязательный набор проверок. Убирать шаги запрещено (см. make rules-check).
 verify: format-check lint sast rules-check test migrations-check backup-check mutation
 	@echo "make verify: все проверки пройдены"
+
+# ---------- Безопасность и CI (ЛР №5) ----------
+# Инструменты запускаются в контейнерах из docker/security-tools.yaml —
+# локально и в CI одинаково (.github/workflows/ci.yml).
+SECURITY_SCAN := $(PY) tools/security_scan.py
+
+secrets-scan: $(VENV_STAMP) reports
+	$(SECURITY_SCAN) secrets
+
+deps-scan: $(VENV_STAMP) reports
+	$(SECURITY_SCAN) deps
+
+image-scan: $(VENV_STAMP) reports
+	$(SECURITY_SCAN) image $(if $(image),--image $(image))
+
+security: sast secrets-scan deps-scan
+
+# Те же проверки, что выполняет CI (задания style … build)
+ci-local: verify security container-check image-scan
+	@echo "make ci-local: все проверки CI пройдены локально"
 
 # ---------- Контейнерное окружение (ЛР №4) ----------
 # Все настройки и пароли берутся из .env.docker (в Git не попадает).
