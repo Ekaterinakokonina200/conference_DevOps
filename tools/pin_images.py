@@ -4,7 +4,8 @@
 (например, пересобрать с обновлениями ОС). Дайджест sha256 — отпечаток
 конкретного содержимого: образ name:tag@sha256:... всегда один и тот же.
 
-Скрипт находит в Dockerfile и файлах Compose ссылки на внешние образы
+Скрипт находит в Dockerfile, файлах Compose, docker/security-tools.yaml
+и .github/workflows/ci.yml ссылки на внешние образы
 (строки FROM ... и image: ...), скачивает каждый образ (docker pull),
 узнаёт его дайджест и записывает ссылку в виде name:tag@sha256:<дайджест>.
 Образы проекта (conference-app:${APP_VERSION}) не трогаются.
@@ -22,7 +23,13 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FILES = ["Dockerfile", "compose.yaml", "compose.scale.yaml"]
+FILES = [
+    "Dockerfile",
+    "compose.yaml",
+    "compose.scale.yaml",
+    "docker/security-tools.yaml",  # gitleaks, trivy (ЛР №5)
+    ".github/workflows/ci.yml",  # тестовая БД в CI — тот же образ postgres
+]
 
 # FROM name:tag[@sha256:...]  или  image: name:tag[@sha256:...]
 IMAGE_LINE = re.compile(
