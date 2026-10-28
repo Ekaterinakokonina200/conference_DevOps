@@ -17,7 +17,9 @@
 /docs/quality-rules.md         @Ekaterinakokonina200 @Maryleksa
 /.github/                      @Ekaterinakokonina200 @Maryleksa
 
-# Тестовая конфигурация и мутационная проверка
+# Тесты, тестовая конфигурация и мутационная проверка.
+# /tests/ целиком (ЛР №5): удалить или ослабить тест нельзя без Approve владельцев.
+/tests/                        @sugarkisss @Maryleksa
 /tests/conftest.py             @Maryleksa @sugarkisss
 /tests/integration/conftest.py @Maryleksa @sugarkisss
 /tools/mutation_check.py       @sugarkisss @Ekaterinakokonina200
@@ -46,3 +48,10 @@
 /tools/container_db.py         @Maryleksa @sugarkisss
 /tools/container_check.py      @Ekaterinakokonina200 @Maryleksa
 /docs/container-rules.md       @Ekaterinakokonina200 @Maryleksa
+
+# Непрерывная интеграция и проверки безопасности (ЛР №5)
+/.github/workflows/            @Ekaterinakokonina200 @Maryleksa
+/tools/security_scan.py        @Ekaterinakokonina200 @sugarkisss
+/.trivyignore                  @Ekaterinakokonina200 @sugarkisss
+/.gitleaksignore               @Ekaterinakokonina200 @sugarkisss
+/docs/ci.md                    @Ekaterinakokonina200 @Maryleksa
