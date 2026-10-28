@@ -10,6 +10,8 @@ Closes #
       новых исключений анализаторов нет (или они записаны в журнал `docs/quality-rules.md` с обоснованием)
 - [ ] Если менялась схема БД — добавлена миграция, `make migrations-check` проходит
 - [ ] Паролей, `.env`, `.env.test`, `.env.docker`, резервных копий в изменениях нет
+- [ ] CI зелёный: `style`, `rules`, `security`, `tests`, `migrations`, `backup`, `container`, `build`
+      (локально то же самое — `make ci-local`)
 - [ ] Если изменены `Dockerfile`, `.dockerignore`, `compose*.yaml`, `docker/`, `.env.docker.example`
       или `requirements.txt` — `make container-check` завершился строкой
       `container-check: контейнерное окружение принято` (вывод ниже)
