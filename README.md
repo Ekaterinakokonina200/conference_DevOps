@@ -156,6 +156,30 @@ make verify
 
 Остальные команды — `make help`.
 
+## Непрерывная интеграция (CI)
+
+[![CI](https://github.com/Ekaterinakokonina200/conference_DevOps/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ekaterinakokonina200/conference_DevOps/actions/workflows/ci.yml)
+
+GitHub Actions (`.github/workflows/ci.yml`) при каждом push и Pull Request
+выполняет те же команды, что и локальный контур: стиль, правила, безопасность
+(bandit, gitleaks, trivy), тесты на отдельной БД, миграции, резервное
+копирование, `make container-check`, сборку и анализ образа. Образ с тегом
+commit SHA публикуется в `ghcr.io/ekaterinakokonina200/conference-app` только
+из `main` и только если прошли все проверки. Подробнее — [docs/ci.md](docs/ci.md).
+
+Все проверки CI локально (нужен Docker):
+
+```bash
+make ci-local
+```
+
+| Команда | Что проверяет |
+|---|---|
+| `make secrets-scan` | секреты в истории Git (gitleaks) |
+| `make deps-scan` | уязвимости зависимостей (trivy) |
+| `make image-scan` | уязвимости контейнерного образа (trivy) |
+| `make security` | `sast` + `secrets-scan` + `deps-scan` |
+
 ## Запуск в контейнерах (Docker)
 
 Нужен Docker Desktop (Windows) или Docker Engine с Compose v2.
@@ -202,6 +226,7 @@ make up              # сборка образа, запуск db -> migrate -> 
 | [Контейнерное окружение](docs/container.md)              | Образ, Compose, сети, том, backup/restore в контейнерах     |
 | [Правила контейнеров](docs/container-rules.md)           | Запреты и `make container-check`, порядок изменений         |
 | [Ограничения ресурсов](docs/container-resources.md)      | Лимиты CPU, памяти и процессов, обоснование и измерения     |
+| [Непрерывная интеграция](docs/ci.md)                     | Pipeline GitHub Actions, секреты, публикация образа, защита |
 
 Все документы отображаются непосредственно на GitHub в режиме **Preview**. Файл со схемой данных содержит визуальную ER-диаграмму, которая строится средствами Mermaid.
 
