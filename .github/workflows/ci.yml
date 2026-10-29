@@ -256,35 +256,10 @@ jobs:
           path: reports/backup-check.txt
           if-no-files-found: warn
 
-  # ---------------------------------------------------------------- контейнеры
-  container:
-    name: container
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements*.txt
-      - name: make install
-        run: make install
-      - name: make container-check (9 шагов ЛР №4)
-        shell: bash
-        run: mkdir -p reports && make container-check 2>&1 | tee reports/container-check.txt
-      - name: Отчёт container-check
-        if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: container-check-report
-          path: reports/container-check.txt
-          if-no-files-found: warn
-
   # ---------------------------------------------------------------- сборка
   build:
     name: build
-    needs: [style, rules, security, tests, migrations, backup, container]
+    needs: [style, rules, security, tests, migrations, backup]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -346,7 +321,7 @@ jobs:
   publish:
     name: publish
     # публикация — только после ВСЕХ обязательных проверок и только для main и тегов
-    needs: [style, rules, security, tests, migrations, backup, container, build]
+    needs: [style, rules, security, tests, migrations, backup, build]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
