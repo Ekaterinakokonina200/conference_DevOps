@@ -12,6 +12,7 @@ class Participant(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     phone = Column(String(50), nullable=True)
     organization = Column(String(255), nullable=True)
+    country = Column(String(100), nullable=True)
     created_at = Column(
         DateTime,
         server_default=func.now(),
