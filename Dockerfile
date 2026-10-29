@@ -30,7 +30,7 @@ RUN python -m venv /opt/venv \
 # ---------- этап 2: итоговый образ ----------
 FROM python:3.12.15-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70 AS runtime
 
-ARG APP_VERSION=0.4.0
+ARG APP_VERSION=0.5.0
 
 LABEL org.opencontainers.image.title="conference-app" \
       org.opencontainers.image.description="Conference Management System (FastAPI)" \
