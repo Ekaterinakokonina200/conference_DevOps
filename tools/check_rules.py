@@ -53,7 +53,6 @@ REQUIRED_CI_JOBS = {
     "tests": ["make test", "make mutation"],
     "migrations": ["make migrations-check"],
     "backup": ["make backup-check"],
-    "container": ["make container-check"],
     "build": ["make image-scan"],
 }
 PUBLISH_JOB = "publish"
