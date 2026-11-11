@@ -16,9 +16,12 @@ from app.routers import (
     theses,
 )
 
-# Версия передаётся при сборке образа (ARG APP_VERSION в Dockerfile),
-# идентификатор экземпляра — имя контейнера (hostname) или INSTANCE_ID.
+# Версия и коммит передаются при сборке образа (ARG APP_VERSION и APP_REVISION
+# в Dockerfile; в CI APP_REVISION = commit SHA), идентификатор экземпляра —
+# имя контейнера (hostname) или INSTANCE_ID. По /version проверка релиза (ЛР №6)
+# убеждается, что в целевой среде работает именно развёрнутый образ.
 APP_VERSION = os.getenv("APP_VERSION", "dev")
+APP_REVISION = os.getenv("APP_REVISION", "unknown")
 INSTANCE_ID = os.getenv("INSTANCE_ID") or socket.gethostname()
 
 app = FastAPI(
@@ -35,8 +38,8 @@ def health():
 
 @app.get("/version")
 def version():
-    """Версия приложения и экземпляр, который обработал запрос."""
-    return {"version": APP_VERSION, "instance": INSTANCE_ID}
+    """Версия приложения, коммит сборки и экземпляр, который обработал запрос."""
+    return {"version": APP_VERSION, "revision": APP_REVISION, "instance": INSTANCE_ID}
 
 
 app.include_router(

@@ -301,6 +301,9 @@ jobs:
           context: .
           load: true
           push: false
+          # коммит сборки попадает в образ и в ответ /version (ЛР №6)
+          build-args: |
+            APP_REVISION=${{ github.sha }}
           tags: |
             ${{ env.IMAGE }}:${{ github.sha }}
             ${{ env.IMAGE }}:sha-${{ env.SHORT_SHA }}
