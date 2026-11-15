@@ -31,16 +31,21 @@ RUN python -m venv /opt/venv \
 FROM python:3.12.15-slim-bookworm@sha256:6a0e06f5ba0b373d051aabd3fffb9b873f27f9a2a3a14bcbe37dee6f0e3bbc70 AS runtime
 
 ARG APP_VERSION=0.5.0
+# Коммит, из которого собран образ: в CI передаётся github.sha (ЛР №6),
+# при локальной сборке — local. Приложение показывает его в /version.
+ARG APP_REVISION=local
 
 LABEL org.opencontainers.image.title="conference-app" \
       org.opencontainers.image.description="Conference Management System (FastAPI)" \
       org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.revision="${APP_REVISION}" \
       org.opencontainers.image.source="https://github.com/Ekaterinakokonina200/conference_DevOps"
 
 ENV PATH="/opt/venv/bin:${PATH}" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    APP_VERSION="${APP_VERSION}"
+    APP_VERSION="${APP_VERSION}" \
+    APP_REVISION="${APP_REVISION}"
 
 # Непривилегированный системный пользователь без домашнего каталога и оболочки
 RUN groupadd --system --gid 10001 app \
@@ -48,8 +53,9 @@ RUN groupadd --system --gid 10001 app \
        --home-dir /nonexistent --no-create-home --shell /usr/sbin/nologin app
 
 # Обновления безопасности Debian, вышедшие после сборки базового образа
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libssl3 openssl \
+RUN apt-get -o Acquire::Retries=0 update \
+    && apt-get -o Acquire::Retries=0 install -y --no-install-recommends --only-upgrade \
+       apt=2.6.2 libapt-pkg6.0=2.6.2 libssl3 openssl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

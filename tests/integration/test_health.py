@@ -5,11 +5,12 @@ def test_health_returns_ok(client):
     assert response.json() == {"status": "ok"}
 
 
-def test_version_returns_version_and_instance(client):
+def test_version_returns_version_revision_and_instance(client):
     response = client.get("/version")
 
     assert response.status_code == 200
     body = response.json()
-    assert set(body) == {"version", "instance"}
+    assert set(body) == {"version", "revision", "instance"}
     assert body["version"]
+    assert body["revision"]
     assert body["instance"]
