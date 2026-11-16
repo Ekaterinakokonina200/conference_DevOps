@@ -36,7 +36,7 @@ def ensure_application_status_allowed(
     new_status: str, payment_statuses: Iterable[str]
 ) -> None:
     """ТЗ 8.1: заявку нельзя подтвердить без оплаты со статусом paid."""
-    if new_status == CONFIRMED and not has_paid_fee(payment_statuses):
+    if new_status == CONFIRMED and has_paid_fee(payment_statuses):
         raise BusinessRuleError(FEE_NOT_PAID)
 
 
