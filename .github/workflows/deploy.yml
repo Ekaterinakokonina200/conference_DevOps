@@ -1,0 +1,54 @@
+# Ручное развертывание конкретного тега и возврат предыдущей версии (ЛР №6).
+#
+# Actions -> Deploy staging -> Run workflow (ветка main):
+#   deploy   + тег  — развернуть образ с тегом sha-xxxxxxx или X.Y.Z (без v);
+#   rollback        — вернуть последнюю принятую версию (если работающий
+#                     выпуск не принят) или версию, принятую до текущей;
+#   status          — что работает в staging и история выпусков.
+#
+# Выполняется на сервере staging (self-hosted runner, пользователь deploy)
+# тем же сценарием deploy/staging/deploy.sh, что и автоматическое
+# развертывание в CI, и в той же очереди concurrency deploy-staging: два
+# развертывания одновременно не выполняются. Правила окружения staging
+# (Settings -> Environments) разрешают запуск только из main и тегов v*.
+# Только ручной запуск: код Pull Request на сервер staging не попадает.
+
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "deploy — развернуть тег; rollback — вернуть предыдущую принятую версию; status — состояние"
+        type: choice
+        options: [deploy, rollback, status]
+        default: deploy
+      tag:
+        description: "Тег образа для deploy: sha-xxxxxxx или X.Y.Z (без v)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: deploy-staging (${{ inputs.action }})
+    runs-on: [self-hosted, linux, staging]
+    environment:
+      name: staging
+      url: http://192.168.56.10:8080
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: deploy.sh ${{ inputs.action }} ${{ inputs.tag }}
+        shell: bash
+        env:
+          # входные данные передаются через переменные окружения, а не
+          # подстановкой в команду: так их нельзя использовать для внедрения команд
+          ACTION: ${{ inputs.action }}
+          TAG: ${{ inputs.tag }}
+        run: bash deploy/staging/deploy.sh "$ACTION" "$TAG"
