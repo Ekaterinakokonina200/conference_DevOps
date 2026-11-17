@@ -12,6 +12,8 @@ Closes #
 - [ ] Паролей, `.env`, `.env.test`, `.env.docker`, резервных копий в изменениях нет
 - [ ] CI зелёный: `style`, `rules`, `security`, `tests`, `migrations`, `backup`, `container`, `build`
       (локально то же самое — `make ci-local`)
+- [ ] После слияния: развертывание в staging (`deploy-staging`) прошло, выпуск ПРИНЯТ
+      (локально проверка релиза — `make up`, затем `make release-check`)
 - [ ] Если изменены `Dockerfile`, `.dockerignore`, `compose*.yaml`, `docker/`, `.env.docker.example`
       или `requirements.txt` — `make container-check` завершился строкой
       `container-check: контейнерное окружение принято` (вывод ниже)

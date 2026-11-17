@@ -12,7 +12,10 @@
   разрешать падение проверки, публиковать образ без всех проверок,
   использовать действия без закрепления по SHA и пароли в открытом виде;
 - добавлять исключения сканеров безопасности (.trivyignore, .gitleaksignore)
-  без обоснования.
+  без обоснования;
+- ослаблять доставку (ЛР №6): развертывание в staging только после публикации,
+  только из main, тегов v* или вручную, по одному за раз, с проверкой релиза;
+  образ на сервере не собирается, код Pull Request не попадает на сервер.
 """
 
 import ast
@@ -57,6 +60,14 @@ REQUIRED_CI_JOBS = {
     "build": ["make image-scan"],
 }
 PUBLISH_JOB = "publish"
+
+# Доставка в предэксплуатационное окружение staging (ЛР №6)
+DEPLOY_JOB = "deploy"
+CD_WORKFLOW = ".github/workflows/deploy.yml"
+DEPLOY_SCRIPT = "deploy/staging/deploy.sh"
+STAGING_COMPOSE = "deploy/staging/compose.yaml"
+DEPLOY_CONCURRENCY = "deploy-staging"
+STAGING_LABEL = "staging"
 SCANNER_IGNORE_FILES = [".trivyignore", ".gitleaksignore"]
 
 SKIP_PATTERNS = re.compile(
@@ -252,6 +263,111 @@ def check_ci_workflow() -> None:
             )
 
 
+def runner_labels(job: dict) -> list[str]:
+    runs_on = job.get("runs-on", [])
+    return [runs_on] if isinstance(runs_on, str) else [str(x) for x in runs_on]
+
+
+def check_deploy_job(where: str, job: dict) -> None:
+    """Задание развертывания: сервер staging, окружение, очередь, проверка релиза."""
+    if STAGING_LABEL not in runner_labels(job):
+        errors.append(
+            f"{where}: развертывание не на сервере staging (runs-on: {STAGING_LABEL})"
+        )
+    environment = job.get("environment", {})
+    name = environment.get("name") if isinstance(environment, dict) else environment
+    if name != "staging":
+        errors.append(f"{where}: нет environment: staging (правила окружения GitHub)")
+    concurrency = job.get("concurrency") or {}
+    group = concurrency.get("group") if isinstance(concurrency, dict) else None
+    if group != DEPLOY_CONCURRENCY:
+        errors.append(f"{where}: нет concurrency group {DEPLOY_CONCURRENCY}")
+    elif concurrency.get("cancel-in-progress") not in (False, "false"):
+        errors.append(
+            f"{where}: развертывание нельзя прерывать (cancel-in-progress: false)"
+        )
+    if DEPLOY_SCRIPT not in run_commands(job):
+        errors.append(f"{where}: развертывание не через {DEPLOY_SCRIPT}")
+    for step in job.get("steps", []):
+        uses = step.get("uses", "")
+        if uses and not re.search(r"@[0-9a-f]{40}$", uses):
+            errors.append(f"{where}: действие {uses} не закреплено по commit SHA")
+        if step.get("continue-on-error") or job.get("continue-on-error"):
+            errors.append(f"{where}: continue-on-error запрещён")
+
+
+def check_delivery() -> None:
+    """Доставка в staging нельзя незаметно ослабить (docs/cd.md, ЛР №6)."""
+    ci = yaml.safe_load((ROOT / CI_WORKFLOW).read_text(encoding="utf-8")) or {}
+    jobs = ci.get("jobs", {})
+    for name, job in jobs.items():
+        if name != DEPLOY_JOB and STAGING_LABEL in runner_labels(job):
+            errors.append(
+                f"{CI_WORKFLOW}: задание {name} выполняется на сервере staging"
+            )
+    deploy = jobs.get(DEPLOY_JOB)
+    where = f"{CI_WORKFLOW}: задание {DEPLOY_JOB}"
+    if deploy is None:
+        errors.append(
+            f"{CI_WORKFLOW}: нет задания {DEPLOY_JOB} (развертывание после публикации)"
+        )
+    else:
+        needs = deploy.get("needs", [])
+        needs = [needs] if isinstance(needs, str) else needs
+        if PUBLISH_JOB not in needs:
+            errors.append(
+                f"{where}: развертывание без успешной публикации (needs: {PUBLISH_JOB})"
+            )
+        condition = str(deploy.get("if", ""))
+        if "refs/heads/main" not in condition or "always()" in condition:
+            errors.append(
+                f"{where}: развертывание не ограничено веткой main и тегами v*"
+            )
+        check_deploy_job(where, deploy)
+
+    path = ROOT / CD_WORKFLOW
+    if not path.exists():
+        errors.append(f"{CD_WORKFLOW}: нет ручного развертывания и возврата версии")
+    else:
+        workflow = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        triggers = workflow.get("on", workflow.get(True)) or {}
+        if set(triggers) != {"workflow_dispatch"}:
+            errors.append(f"{CD_WORKFLOW}: запуск только вручную (workflow_dispatch)")
+        for name, job in (workflow.get("jobs") or {}).items():
+            check_deploy_job(f"{CD_WORKFLOW}: задание {name}", job)
+
+    compose_path = ROOT / STAGING_COMPOSE
+    if not compose_path.exists():
+        errors.append(f"{STAGING_COMPOSE}: нет описания окружения staging")
+    else:
+        services = (yaml.safe_load(compose_path.read_text(encoding="utf-8")) or {}).get(
+            "services", {}
+        )
+        for name, service in services.items():
+            if "build" in service:
+                errors.append(
+                    f"{STAGING_COMPOSE}: сервис {name} собирает образ на сервере"
+                )
+            if str(service.get("image", "")).endswith(":latest"):
+                errors.append(f"{STAGING_COMPOSE}: сервис {name} использует latest")
+        if "${APP_TAG" not in str(services.get("app", {}).get("image", "")):
+            errors.append(
+                f"{STAGING_COMPOSE}: образ app не задан тегом из registry (APP_TAG)"
+            )
+
+    script_path = ROOT / DEPLOY_SCRIPT
+    script = script_path.read_text(encoding="utf-8") if script_path.exists() else ""
+    for required, reason in (
+        ("docker pull", "образ не берётся из registry"),
+        ("release_check.py", "нет проверки релиза после развертывания"),
+        ("flock", "нет защиты от одновременных развертываний"),
+    ):
+        if required not in script:
+            errors.append(f"{DEPLOY_SCRIPT}: {reason} ({required})")
+    if re.search(r"docker (compose .*)?build|--build", script):
+        errors.append(f"{DEPLOY_SCRIPT}: образ собирается на сервере")
+
+
 def check_scanner_ignores() -> None:
     """Исключения сканеров безопасности — только с обоснованием."""
     for name in SCANNER_IGNORE_FILES:
@@ -279,6 +395,7 @@ def main() -> None:
     check_pinned_requirements()
     check_test_count()
     check_ci_workflow()
+    check_delivery()
     check_scanner_ignores()
     if errors:
         print("Нарушены правила качества (docs/quality-rules.md):")

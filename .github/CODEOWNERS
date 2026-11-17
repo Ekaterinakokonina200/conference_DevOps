@@ -55,3 +55,8 @@
 /.trivyignore                  @Ekaterinakokonina200 @sugarkisss
 /.gitleaksignore               @Ekaterinakokonina200 @sugarkisss
 /docs/ci.md                    @Ekaterinakokonina200 @Maryleksa
+
+# Непрерывная доставка и проверка релиза (ЛР №6)
+/deploy/staging/               @Ekaterinakokonina200 @Maryleksa
+/tools/release_check.py        @Maryleksa @sugarkisss
+/docs/cd.md                    @Ekaterinakokonina200 @Maryleksa
