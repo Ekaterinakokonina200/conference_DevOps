@@ -1,0 +1,4 @@
+# Настройки actionlint: метка self-hosted runner сервера staging (ЛР №6)
+self-hosted-runner:
+  labels:
+    - staging
