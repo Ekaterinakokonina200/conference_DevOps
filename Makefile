@@ -23,7 +23,7 @@ export PYTHONUTF8 := 1
 	container-env pin-images up down ps logs container-migrate container-backup \
 	container-restore container-restore-new container-sql container-counts \
 	container-check container-policy up-scale down-scale scale-check \
-	secrets-scan deps-scan image-scan security ci-local
+	secrets-scan deps-scan image-scan security ci-local release-check
 
 help:
 	@echo "Установка и запуск"
@@ -75,6 +75,11 @@ help:
 	@echo "  make container-restore-new file=latest volume=ИМЯ   восстановление в новый том"
 	@echo "  make container-sql q=\"SELECT ...\"   SQL-запрос к БД в контейнере"
 	@echo "  make container-counts  число записей в таблицах БД в контейнере"
+	@echo "Выпуск (ЛР 6)"
+	@echo "  make release-check     проверка работающего релиза: контейнеры, /health, /version,"
+	@echo "                         веб-интерфейс, основной сценарий (по умолчанию — make up)"
+	@echo "                         url=http://АДРЕС:ПОРТ project=ИМЯ|- version=X.Y.Z revision=SHA"
+	@echo "                         (staging с ноутбука: url=http://192.168.56.10:8080 project=-)"
 
 $(VENV_STAMP): requirements.txt requirements-dev.txt
 	$(PYTHON_BOOT) -m venv .venv
@@ -245,3 +250,10 @@ container-counts: .env.docker
 
 clean:
 	$(PY) -c "import shutil; [shutil.rmtree(p, ignore_errors=True) for p in ('reports', '.pytest_cache', '.ruff_cache')]"
+
+# Проверка работающего релиза (ЛР №6). Те же проверки после развёртывания
+# выполняет на сервере staging сценарий deploy/staging/deploy.sh.
+release-check: $(VENV_STAMP)
+	$(PY) tools/release_check.py --url $(or $(url),http://127.0.0.1:8000) \
+		$(if $(filter -,$(project)),,--project $(or $(project),conference)) \
+		$(if $(version),--expect-version $(version)) $(if $(revision),--expect-revision $(revision))

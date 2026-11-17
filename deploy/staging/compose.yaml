@@ -1,0 +1,125 @@
+# Предэксплуатационное окружение (staging) Conference Management System (ЛР №6).
+#
+# Запускается на сервере conference-app (192.168.56.10) только сценарием
+# deploy/staging/deploy.sh от имени пользователя deploy. Вручную не запускать.
+#
+# Образ НЕ собирается на сервере: здесь нет build, приложение и миграции
+# работают из образа, опубликованного CI в GitHub Container Registry:
+#   ${APP_IMAGE}:${APP_TAG}  (например, ghcr.io/ekaterinakokonina200/conference-app:sha-043e18a)
+# APP_TAG передаёт deploy.sh, все остальные настройки берутся из файла
+# окружения на сервере /srv/conference-staging/staging.env (не в образе
+# и не в Git; шаблон — deploy/staging/staging.env.example). Значения без
+# умолчания (:?) обязательны: без них Compose остановится с ошибкой.
+
+name: conference-staging
+
+x-app-image: &app-image ${APP_IMAGE:?}:${APP_TAG:?}
+
+x-app-environment: &app-environment
+  DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@db:5432/${POSTGRES_DB:?}
+  JWT_SECRET_KEY: ${JWT_SECRET_KEY:?}
+  JWT_ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:?}
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    stop_grace_period: 30s
+    shm_size: 128mb
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          pids: 200
+          cpus: "1.0"
+          memory: 512M
+    logging: *logging
+
+  migrate:
+    # Разовая задача: deploy.sh запускает её перед заменой приложения
+    # (docker compose run --rm migrate). В обычный up не входит.
+    image: *app-image
+    profiles: ["migrate"]
+    command: ["alembic", "upgrade", "head"]
+    environment: *app-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: "no"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging: *logging
+
+  app:
+    image: *app-image
+    environment: *app-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - frontend
+    # Порт открыт только на host-only адресе сервера (APP_BIND), а не на
+    # интерфейсе NAT: приложение доступно с компьютера-хоста, но не из интернета.
+    ports:
+      - "${APP_BIND:?}:${APP_PORT:?}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    stop_grace_period: 20s
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          pids: 100
+          cpus: "1.0"
+          memory: 384M
+    logging: *logging
+
+networks:
+  backend:
+    internal: true
+  frontend: {}
+
+volumes:
+  pgdata:
+    name: conference_staging_pgdata
