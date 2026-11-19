@@ -39,6 +39,12 @@
             font-size: 32px;
         }
 
+        .app-version {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
         .subtitle {
             margin: 0;
             color: #5f6673;
@@ -522,6 +528,9 @@
                 Система управления участниками научной конференции.<br>
                 Conference participant management system.
             </p>
+
+            <!-- Работающая версия и коммит (GET /version, ЛР №6) -->
+            <p class="app-version" id="app-version">Версия: …</p>
         </header>
 
                 <!-- Аутентификация -->
@@ -1895,8 +1904,26 @@
         }
 
 
+        async function loadVersion() {
+            const element = document.getElementById("app-version");
+
+            try {
+                const response = await fetch("/version");
+                const data = await response.json();
+                const revision = (data.revision || "").slice(0, 7);
+
+                element.textContent =
+                    "Версия " + data.version +
+                    (revision ? " (" + revision + ")" : "");
+            } catch (error) {
+                element.textContent = "Версия: недоступна";
+            }
+        }
+
+
         loadCurrentUser();
         loadParticipants();
+        loadVersion();
     </script>
 </body>
 </html>
