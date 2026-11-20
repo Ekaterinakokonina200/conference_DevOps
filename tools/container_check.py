@@ -363,6 +363,18 @@ def http(method: str, path: str, body=None):
         return 0, str(error)
 
 
+def http_page(path: str) -> tuple[int, str]:
+    request = urllib.request.Request(f"http://127.0.0.1:{PORT}{path}")
+    try:
+        # Обоснование: адрес фиксированный (127.0.0.1), схема http задана в коде.
+        with urllib.request.urlopen(request, timeout=10) as response:  # nosec B310
+            return response.status, response.read().decode("utf-8", "replace")
+    except urllib.error.HTTPError as error:
+        return error.code, ""
+    except OSError as error:
+        return 0, str(error)
+
+
 def wait_http(path: str = "/health", seconds: int = 60) -> None:
     deadline = time.time() + seconds
     while time.time() < deadline:
@@ -437,6 +449,12 @@ def app_and_migrations(compose: Compose) -> None:
     step(4, "Приложение и миграции")
     wait_http()
     ok(f"GET http://127.0.0.1:{PORT}/health -> 200")
+    # ЛР №6: веб-интерфейс должен попасть в образ (после неудачного выпуска,
+    # когда тесты на исходном коде прошли, а в образе страницы не было)
+    status, page = http_page("/")
+    if status != 200 or 'id="register-form"' not in page:
+        fail(f"веб-интерфейс GET / -> {status}: страница не попала в образ")
+    ok(f"GET http://127.0.0.1:{PORT}/ -> 200, веб-интерфейс в образе")
     out = compose.run("exec", "-T", "app", "alembic", "current").stdout.decode()
     if "(head)" not in out:
         fail(f"схема БД не на последней версии: {out.strip()}")
