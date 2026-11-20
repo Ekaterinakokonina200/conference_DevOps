@@ -54,7 +54,7 @@ RUN groupadd --system --gid 10001 app \
 
 # Обновления безопасности Debian, вышедшие после сборки базового образа
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends --only-upgrade libssl3 openssl \
+    && apt-get install -y --no-install-recommends --only-upgrade libssl3 openssl apt libapt-pkg6.0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
