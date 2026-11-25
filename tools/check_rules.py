@@ -168,7 +168,7 @@ def check_container_check() -> None:
 
 
 def check_pinned_requirements() -> None:
-    for name in ("requirements.txt", "requirements-dev.txt"):
+    for name in ("requirements.txt", "requirements-dev.txt", "requirements-infra.txt"):
         lines = (ROOT / name).read_text(encoding="utf-8").splitlines()
         for number, raw in enumerate(lines, 1):
             line = raw.split("#")[0].strip()

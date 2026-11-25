@@ -23,7 +23,7 @@ export PYTHONUTF8 := 1
 	container-env pin-images up down ps logs container-migrate container-backup \
 	container-restore container-restore-new container-sql container-counts \
 	container-check container-policy up-scale down-scale scale-check \
-	secrets-scan deps-scan image-scan security ci-local release-check
+	secrets-scan deps-scan image-scan security ci-local release-check infra-check
 
 help:
 	@echo "Установка и запуск"
@@ -80,6 +80,8 @@ help:
 	@echo "                         веб-интерфейс, основной сценарий (по умолчанию — make up)"
 	@echo "                         url=http://АДРЕС:ПОРТ project=ИМЯ|- version=X.Y.Z revision=SHA"
 	@echo "                         (staging с ноутбука: url=http://192.168.56.10:8080 project=-)"
+	@echo "Инфраструктура (ЛР 7, нужен Docker)"
+	@echo "  make infra-check       проверка кода Ansible: yamllint, ansible-lint, синтаксис, требования"
 
 $(VENV_STAMP): requirements.txt requirements-dev.txt
 	$(PYTHON_BOOT) -m venv .venv
@@ -257,3 +259,9 @@ release-check: $(VENV_STAMP)
 	$(PY) tools/release_check.py --url $(or $(url),http://127.0.0.1:8000) \
 		$(if $(filter -,$(project)),,--project $(or $(project),conference)) \
 		$(if $(version),--expect-version $(version)) $(if $(revision),--expect-revision $(revision))
+
+
+# Проверка инфраструктурного кода (ЛР №7): в контейнере, одинаково локально и в CI.
+# Применение к узлам — infra/run.sh на управляющем узле и pipeline Infrastructure.
+infra-check: $(VENV_STAMP)
+	$(PY) tools/infra_check.py
