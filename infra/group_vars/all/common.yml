@@ -1,0 +1,54 @@
+---
+# ОБЩИЕ параметры — одинаковы для всех окружений и узлов (ЛР №7).
+# Окруженческие — inventories/<окружение>/group_vars/all/env.yml,
+# узловые — inventories/<окружение>/host_vars/<узел>.yml,
+# секретные — inventories/<окружение>/group_vars/all/vault.yml (ansible-vault).
+# Одно и то же имя параметра задаётся только в одном из этих мест
+# (проверяет make infra-check).
+
+timezone: Europe/Moscow
+
+# Пакеты, нужные на каждом узле
+base_packages:
+  - acl
+  - ca-certificates
+  - curl
+  - git
+  - python3
+  - ufw
+  - unattended-upgrades
+
+# Администраторы (ЛР №2): вход только по ключу из infra/files/ssh_keys/<логин>.pub,
+# sudo с паролем (хеш — в vault), пароль задаётся только при создании.
+admin_users:
+  - name: katy
+    comment: Коконина Е. О.
+  - name: mariya
+    comment: Баранова М. Г.
+  - name: amylanga
+    comment: Отхонова А. А.
+
+# Служебные учётные записи
+automation_user: ansible   # Ansible: вход по ключу управляющего узла, sudo без пароля
+deploy_user: deploy        # приложение и CD: группа docker, без sudo, без входа по SSH
+
+# Ansible подключается к узлам этой учётной записью (bootstrap.yml — пользователем
+# установщика, его задаёт infra/run.sh)
+ansible_user: "{{ automation_user }}"
+
+# Сеть: всё управление и доступ к приложению — только из host-only сети
+host_only_network: 192.168.56.0/24
+ssh_port: 22
+
+# Docker
+docker_packages:
+  - docker.io
+  - docker-compose-v2
+docker_log_max_size: 10m
+docker_log_max_file: 3
+
+# Приложение: образ только из registry, БД — закреплённый образ PostgreSQL
+app_image_repo: ghcr.io/ekaterinakokonina200/conference-app
+postgres_image: postgres:17.5-bookworm@sha256:fbcea1bd13b6a882cd6caa6b58db3ae5c102efe50ec625b3e2a5cbc50db5bfe4
+postgres_db: conference
+postgres_user: conference

@@ -1,0 +1,11 @@
+---
+# УЗЛОВЫЕ параметры conference-prod (ВМ conference-db из ЛР №2)
+ansible_host: 192.168.56.11
+hostname: conference-prod
+app_bind: 192.168.56.11
+
+node_extra_packages: []
+
+# Наследие ЛР №2 на этом узле (если ВМ не переустанавливалась): PostgreSQL (правило 5432 удаляется ролью firewall)
+legacy_services:
+  - postgresql

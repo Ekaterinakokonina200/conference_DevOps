@@ -1,0 +1,17 @@
+---
+# УЗЛОВЫЕ параметры conference-app (staging и управляющий узел)
+ansible_host: 192.168.56.10
+hostname: conference-app
+app_bind: 192.168.56.10
+
+# Этот узел — сам управляющий узел: bootstrap.yml выполняется на нём без SSH
+bootstrap_local: true
+
+# Управляющий узел: здесь работают Ansible (venv) и runner'ы GitHub
+node_extra_packages:
+  - python3-venv
+  - sshpass
+
+# Наследие ЛР №2 на этом узле: приложение без контейнеров (порт 8000; правило брандмауэра удаляется ролью firewall)
+legacy_services:
+  - conference

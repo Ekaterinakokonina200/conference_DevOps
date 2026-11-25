@@ -1,0 +1,25 @@
+---
+# Учётная запись Ansible: используется и при подготовке чистой машины
+# (bootstrap.yml), и при каждом применении (site.yml).
+- name: Учётная запись Ansible (вход только по ключу) — {{ automation_user }}
+  ansible.builtin.user:
+    name: "{{ automation_user }}"
+    comment: Ansible automation
+    shell: /bin/bash
+    password: "!"
+    update_password: always
+
+- name: Ключ управляющего узла для {{ automation_user }}
+  ansible.posix.authorized_key:
+    user: "{{ automation_user }}"
+    key: "{{ lookup('ansible.builtin.file', 'ssh_keys/' ~ automation_user ~ '.pub') }}"
+    exclusive: true
+
+- name: Sudo без пароля только для {{ automation_user }}
+  ansible.builtin.template:
+    src: sudoers-automation.j2
+    dest: /etc/sudoers.d/{{ automation_user }}
+    owner: root
+    group: root
+    mode: "0440"
+    validate: /usr/sbin/visudo -cf %s

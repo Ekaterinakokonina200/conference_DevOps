@@ -1,0 +1,25 @@
+---
+# Подготовка ЧИСТОЙ машины (ЛР №7): единственный запуск с паролем.
+# После установки Ubuntu Server на узле есть только пользователь установщика
+# и SSH по паролю. bootstrap создаёт учётную запись Ansible с ключом
+# управляющего узла и sudo — дальше всё делает site.yml по ключу.
+#   bash infra/run.sh bootstrap production
+- name: Подготовка узла к управлению Ansible
+  hosts: conference
+  become: true
+  gather_facts: false
+  vars:
+    # Узел, на котором работает сам Ansible (управляющий узел = staging),
+    # подготавливается без SSH
+    ansible_connection: "{{ 'local' if bootstrap_local | default(false) else 'ssh' }}"
+  tasks:
+    - name: Python для модулей Ansible
+      # Обоснование: на чистой машине модули Ansible ещё не работают, пока нет
+      # Python; raw выполняется без Python и только проверяет его наличие.
+      ansible.builtin.raw: test -x /usr/bin/python3
+      changed_when: false
+
+    - name: Учётная запись Ansible
+      ansible.builtin.import_role:
+        name: users
+        tasks_from: automation.yml
