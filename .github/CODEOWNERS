@@ -60,3 +60,17 @@
 /deploy/staging/               @Ekaterinakokonina200 @Maryleksa
 /tools/release_check.py        @Maryleksa @sugarkisss
 /docs/cd.md                    @Ekaterinakokonina200 @Maryleksa
+
+# Инфраструктурный код (ЛР №7): роли, шаблоны, параметры и секреты —
+# только с согласованием владельцев
+/infra/                        @Ekaterinakokonina200 @sugarkisss
+/infra/roles/                  @sugarkisss @Ekaterinakokonina200
+/infra/roles/app/              @Maryleksa @Ekaterinakokonina200
+/infra/verify.yml              @Maryleksa @Ekaterinakokonina200
+/infra/inventories/            @Ekaterinakokonina200 @Maryleksa
+/infra/files/ssh_keys/         @Ekaterinakokonina200 @Maryleksa
+/requirements-infra.txt        @Ekaterinakokonina200 @sugarkisss
+/tools/infra_check.py          @Ekaterinakokonina200 @Maryleksa
+/tools/infra_policy.py         @Ekaterinakokonina200 @Maryleksa
+/docs/infra.md                 @Ekaterinakokonina200 @Maryleksa
+

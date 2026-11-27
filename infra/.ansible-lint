@@ -1,0 +1,6 @@
+---
+# ansible-lint (ЛР №7): самый строгий профиль, без загрузки из сети
+profile: production
+offline: true
+exclude_paths:
+  - vault.example.yml

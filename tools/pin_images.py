@@ -29,6 +29,7 @@ FILES = [
     "compose.scale.yaml",
     "docker/security-tools.yaml",  # gitleaks, trivy (ЛР №5)
     ".github/workflows/ci.yml",  # тестовая БД в CI — тот же образ postgres
+    "docker/ansible/Dockerfile",  # инструменты make infra-check (ЛР №7)
 ]
 
 # FROM name:tag[@sha256:...]  или  image: name:tag[@sha256:...]

@@ -1,0 +1,15 @@
+---
+# ШАБЛОН секретных параметров окружения (ЛР №7). Настоящие значения —
+# только в зашифрованном inventories/<окружение>/group_vars/all/vault.yml:
+#   ansible-vault create inventories/<окружение>/group_vars/all/vault.yml
+# Этот файл не загружается Ansible и не содержит настоящих секретов.
+
+# Пароль БД (staging: значение POSTGRES_PASSWORD из /srv/conference-staging/staging.env)
+vault_postgres_password: CHANGE_ME
+# Секрет JWT (staging: значение JWT_SECRET_KEY оттуда же)
+vault_jwt_secret_key: CHANGE_ME
+# Хеши паролей sudo администраторов: openssl passwd -6
+vault_admin_password_hashes:
+  katy: "$6$CHANGE_ME"
+  mariya: "$6$CHANGE_ME"
+  amylanga: "$6$CHANGE_ME"
