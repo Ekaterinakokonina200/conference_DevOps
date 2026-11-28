@@ -1,0 +1,36 @@
+---
+# Базовое состояние узла: имя, часовой пояс, пакеты, отключение наследия ЛР №2
+- name: Имя узла
+  ansible.builtin.hostname:
+    name: "{{ hostname }}"
+
+- name: Имя узла в /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ hostname }}"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Часовой пояс
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: Пакеты (общие и узловые)
+  ansible.builtin.apt:
+    name: "{{ base_packages + node_extra_packages }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Список служб узла
+  ansible.builtin.service_facts:
+
+- name: Службы, оставшиеся от ЛР №2, остановлены и отключены
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ legacy_services }}"
+  when: (item ~ '.service') in ansible_facts.services

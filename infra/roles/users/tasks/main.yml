@@ -1,0 +1,41 @@
+---
+- name: Учётная запись Ansible
+  ansible.builtin.import_tasks: automation.yml
+
+- name: Администраторы (группа sudo, пароль задаётся только при создании)
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment }}"
+    shell: /bin/bash
+    groups: sudo
+    append: true
+    password: "{{ admin_password_hashes[item.name] }}"
+    update_password: on_create
+  loop: "{{ admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  no_log: true
+
+- name: Ключи администраторов — только из репозитория
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ lookup('ansible.builtin.file', 'ssh_keys/' ~ item.name ~ '.pub') }}"
+    exclusive: true
+  loop: "{{ admin_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Группа docker
+  ansible.builtin.group:
+    name: docker
+    system: true
+
+- name: Пользователь приложения и CD (без пароля и sudo) — {{ deploy_user }}
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    comment: CI/CD deploy
+    shell: /bin/bash
+    groups: docker
+    append: false
+    password: "!"
+    update_password: always

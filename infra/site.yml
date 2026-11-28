@@ -1,0 +1,13 @@
+---
+# Требуемое состояние узлов (ЛР №7). Повторный запуск без ручных изменений
+# не должен ничего менять (changed=0) — это проверяет infra/run.sh apply.
+#   bash infra/run.sh apply staging | production
+- name: Узлы Conference Management System
+  hosts: conference
+  become: true
+  roles:
+    - base
+    - users
+    - ssh
+    - docker
+    - firewall
