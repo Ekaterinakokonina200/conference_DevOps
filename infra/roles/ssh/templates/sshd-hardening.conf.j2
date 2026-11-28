@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+# Защита SSH (ЛР №2, под управлением Ansible с ЛР №7). Файл с префиксом 00
+# читается первым, поэтому его значения имеют приоритет.
+Port {{ ssh_port }}
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+X11Forwarding no
+MaxAuthTries 3
+LoginGraceTime 30
+# Входить могут только администраторы и учётная запись Ansible
+AllowUsers {{ (admin_users | map(attribute='name') | list + [automation_user]) | join(' ') }}

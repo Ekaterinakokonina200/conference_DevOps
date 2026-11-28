@@ -1,0 +1,72 @@
+---
+# Брандмауэр: входящие запрещены, кроме SSH и порта приложения из host-only
+# сети. Правила, не описанные в коде, удаляются (ручное правило не переживёт
+# повторный запуск).
+- name: Разрешённые правила брандмауэра
+  ansible.builtin.set_fact:
+    firewall_rules:
+      - port: "{{ ssh_port }}"
+        comment: SSH from host-only
+      - port: "{{ app_port }}"
+        comment: Conference {{ env_name }}
+
+- name: Политика по умолчанию — входящие запрещены
+  community.general.ufw:
+    direction: incoming
+    default: deny
+
+- name: Политика по умолчанию — исходящие разрешены
+  community.general.ufw:
+    direction: outgoing
+    default: allow
+
+- name: Разрешить SSH и приложение только из host-only сети
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ host_only_network }}"
+    to_port: "{{ item.port | string }}"
+    proto: tcp
+    comment: "{{ item.comment }}"
+  loop: "{{ firewall_rules }}"
+  loop_control:
+    label: "{{ item.port }}"
+
+# Обоснование: модуль ufw не умеет перечислять правила; «ufw show added»
+# только читает их и ничего не меняет.
+- name: Текущие правила брандмауэра
+  ansible.builtin.command: ufw show added
+  register: firewall_added
+  changed_when: false
+  check_mode: false
+
+- name: Правила, не описанные в коде
+  ansible.builtin.set_fact:
+    firewall_extra: >-
+      {{ firewall_added.stdout_lines
+         | select('match', '^ufw ')
+         | reject('search', firewall_allowed_regex)
+         | list }}
+  vars:
+    firewall_allowed_regex: >-
+      ^ufw allow from {{ host_only_network | regex_escape }} to any port
+      ({{ firewall_rules | map(attribute='port') | map('string') | join('|') }})
+      proto tcp( comment .*)?$
+
+- name: Правила, которые будут удалены
+  ansible.builtin.debug:
+    msg: "{{ firewall_extra }}"
+  when: firewall_extra | length > 0
+
+# Обоснование: модуль ufw удаляет правило только по полному описанию, а
+# здесь удаляются правила, добавленные вручную; текст правила берётся из
+# «ufw show added», поэтому команда точная. Выполняется, только если такие
+# правила есть.
+- name: Удалить правила, не описанные в коде
+  ansible.builtin.command: "ufw delete {{ item | regex_replace('^ufw ', '') }}"
+  loop: "{{ firewall_extra }}"
+  changed_when: true
+
+- name: Брандмауэр включён
+  community.general.ufw:
+    state: enabled
+    logging: "low"
